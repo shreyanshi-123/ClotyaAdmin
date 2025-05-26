@@ -1,0 +1,13 @@
+  .form-wrapper {
+      transition: all 0.4s cubic-bezier(0.17, 0.62, 0.44, 0.99);
+  }
+
+.form-wrapper.my-element.active {
+    transform: translateX(-50%);
+}
+.my-element.active div#refistration-form {
+    opacity: 1;
+}
+.my-element.active div#login-form {
+     opacity: 0;
+}
