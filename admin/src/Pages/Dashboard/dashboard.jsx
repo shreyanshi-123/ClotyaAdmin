@@ -4,18 +4,19 @@ import { useNavigate } from 'react-router-dom';
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn');
-    if (!isAdminLoggedIn) {
-      navigate('/admin/login');
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('isAdminLoggedIn');
-    sessionStorage.removeItem('isAdminLoggedIn');
-    navigate('/admin/login');
-  };
+   useEffect(() => {
+     const isLoggedIn = localStorage.getItem('isUserLoggedIn');
+     if (!isLoggedIn) {
+       navigate('/user/login');
+     }
+   }, [navigate]);
+ 
+   const handleLogout = () => {
+     localStorage.removeItem('isUserLoggedIn');
+     sessionStorage.removeItem('isUserLoggedIn');
+       window.location.href = '/';
+   };
+ 
 
   return (
     <div className="flex min-h-screen">
@@ -25,7 +26,8 @@ function AdminDashboard() {
         <nav className="space-y-4">
           <button className="w-full text-left hover:text-yellow-300">Dashboard</button>
           <button className="w-full text-left hover:text-yellow-300">Users</button>
-          <button className="w-full text-left hover:text-yellow-300">Settings</button>
+          <button className="w-full text-left hover:text-yellow-300">Categories</button>
+           <button className="w-full text-left hover:text-yellow-300">Products</button>
           <button
             onClick={handleLogout}
             className="w-full text-left text-red-400 hover:text-red-600 mt-6"

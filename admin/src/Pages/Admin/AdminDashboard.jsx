@@ -14,7 +14,7 @@ function UserDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('isUserLoggedIn');
     sessionStorage.removeItem('isUserLoggedIn');
-      window.location.href = '/login';
+      window.location.href = '/';
   };
 
   return (

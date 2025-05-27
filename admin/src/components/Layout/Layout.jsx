@@ -5,19 +5,19 @@ import React from "react";
 
 const Layout = () => {
   // Check if user is logged in (e.g., from localStorage)
-  const isLoggedIn = !!localStorage.getItem("isUserLoggedIn");
+  // const isLoggedIn = !!localStorage.getItem("isUserLoggedIn");
 
-  if (!isLoggedIn) {
-    // User not logged in - render only the child routes (login pages etc.)
-    return <Outlet />;
-  }
+  // if (!isLoggedIn) {
+  //   // User not logged in - render only the child routes (login pages etc.)
+  //   return <Outlet />;
+  // }
 
   // User is logged in - render header, footer and child routes
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

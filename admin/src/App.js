@@ -5,7 +5,7 @@ import Home from './Pages/Dashboard/dashboard';
 
 import PageNotFound from './components/Layout/PageNotFound';
 // import Dashboard from './components/Dashboard/dashboard';
-import AdminDashboard from './Pages/Admin/AdminDashboard';
+import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute'; // Import the ProtectedRoute component
 import AdminLogin from './Pages/Admin/adminLogin';
 
@@ -36,20 +36,20 @@ function App() {
       <BrowserRouter  >
         <Routes>
           <Route path='/' element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route index element={<AdminLogin />} />
             
             <Route path='*' element={<PageNotFound />} />
 
 
             {/* User Routes */}
-            <Route path="/login" element={<AdminLogin />} />
+            {/* <Route path="/login" element={<AdminLogin />} /> */}
             
             <Route
               path="/dashboard"
               element={
                 <ProtectedRoute
                   isLoggedIn={isUserLoggedIn}
-                  redirectPath="/login"
+                  redirectPath="/"
                 >
                   <AdminDashboard />
                 </ProtectedRoute>

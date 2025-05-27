@@ -21,58 +21,68 @@ function UserLogin() {
     setActiveTab(tab);
   };
 
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Prevent the default form submission (page reload)
 
-  const handleLogin = (e) => {
-    console.log('shshs')
-    e.preventDefault();
+    const signInData = { email, password };
+    console.log(signInData);
+    setError("");
+    try {
+      const response = await fetch(`http://localhost:5000/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signInData),
+      });
 
-    const userUsername = process.env.REACT_APP_ADMIN_ADMINNAME;
-    const userPassword = process.env.REACT_APP_ADMIN_PASSWORD;
-    const email = process.env.REACT_APP_ADMIN_EMAIL
+      if (!response.ok) {
+        throw new Error("Invalid credentials or user not found");
+      }
 
-    if (username === userUsername && password === userPassword) {
+      const data = await response.json();
 
-      localStorage.setItem('isUserLoggedIn', 'true');
-      sessionStorage.setItem('isUserLoggedIn', 'true');
-      console.log('shshs')
-      window.location.href = '/dashboard';
-    } else {
-      setError('Error: Invalid username or password');
+     
+      if (data.user.role === 'admin') {
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+        sessionStorage.setItem("token", data.token);
+        localStorage.setItem('isUserLoggedIn', 'true');
+        window.location.href = '/dashboard';
+        alert(`Welcome back, ${data.user.name}!`);
+      } else {
+        setError('Invalid User Role');
+      }
+
+    } catch (err) {
+      setError(err.message);
     }
   };
 
+
+
+  // const handleLogin = (e) => {
+  //   console.log('shshs')
+  //   e.preventDefault();
+
+  //   const userUsername = process.env.REACT_APP_ADMIN_ADMINNAME;
+  //   const userPassword = process.env.REACT_APP_ADMIN_PASSWORD;
+  //   const email = process.env.REACT_APP_ADMIN_EMAIL
+
+  //   if (username === userUsername && password === userPassword) {
+
+  //     localStorage.setItem('isUserLoggedIn', 'true');
+  //     sessionStorage.setItem('isUserLoggedIn', 'true');
+  //     console.log('shshs')
+  //     window.location.href = '/dashboard';
+  //   } else {
+  //     setError('Error: Invalid username or password');
+  //   }
+  // };
+
   return (
 
-    <div className=' my-[80px] max-w-7xl mx-auto  flex'>
+    <div className=' my-[80px] max-w-7xl mx-auto '>
       <div className='mt-[]  mx-auto'>
         <div className='px-[15px] mx-auto max-w-[560px] w-full'>
           <div className='flex flex-col  lg:border border-[#dee0ea;] rounded-[2px] lg:p-[60px]'>
-            {/* <ul className="login-page-tab flex mb-[28px] justify-center">
-  <li>
-    <button
-      onClick={handleTabClick('login')}
-      disabled={activeTab === 'login'}
-      className={`font-semibold uppercase text-[1.065rem] ${activeTab === 'login' ? 'active' : 'text-[#c2c2d3]'}`}
-      style={{ cursor: activeTab === 'login' ? 'default' : 'pointer' }}
-      aria-pressed={activeTab === 'login'}
-      type="button"
-    >
-      Login
-    </button>
-  </li>
-  <li className="ml-[20px] sm:ml-[40px]">
-    <button
-      onClick={handleTabClick('register')}
-      disabled={activeTab === 'register'}
-      className={`font-semibold uppercase text-[1.065rem] ${activeTab === 'register' ? 'active' : 'text-[#c2c2d3]'}`}
-      style={{ cursor: activeTab === 'register' ? 'default' : 'pointer' }}
-      aria-pressed={activeTab === 'register'}
-      type="button"
-    >
-      Register
-    </button>
-  </li>
-</ul> */}
             <div className="flex justify-center">
               <NavLink to="https://clotyaecom.vercel.app/" className="block w-auto">
                 <LazyLoadImage
@@ -88,17 +98,17 @@ function UserLogin() {
               <div id='login-form' className={` mt-[20px] px-[1px] w-full `}>
                 <form onSubmit={handleLogin} className='flex flex-col mt-[20px]'>
                   <p className='mb-[16px]'>
-                    <label for="username" className=' text-[14px] mb-[5px]'>Username or email address&nbsp;<span class="required" aria-hidden="true">*</span></label>
+                    <label htmlFor="email" className=' text-[14px] mb-[5px]'>Email address&nbsp;<span className="required" aria-hidden="true">*</span></label>
                     <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder=""
                       className='border rounded-[3px] border-[#ddd] py-[8px] px-[15px] w-full'
                       required
                     /></p>
                   <p className='mb-[16px]'>
-                    <label for="password" className=' text-[14px] mb-[5px]'>Password&nbsp;<span class="required" aria-hidden="true">*</span></label>
+                    <label htmlFor="password" className=' text-[14px] mb-[5px]'>Password&nbsp;<span className="required" aria-hidden="true">*</span></label>
                     <input
                       type="password"
                       value={password}
@@ -112,7 +122,7 @@ function UserLogin() {
                     type="checkbox"
 
                     className='border rounded-[2px] border-[#ddd] py-[5px] px-[20px]'
-                    required
+
                   />
                     <span className=' text-[14px]'>Remember me</span>
 
@@ -126,7 +136,7 @@ function UserLogin() {
                   </button>
                   {error && <div className="text-black mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{error}</div>}
 
-                  {/* <p class="">
+                  {/* <p className="">
                   <a href="#" className='text-[16px] text-[#ee403d] no-underline'>Lost your password?</a>
                 </p> */}
                 </form>
