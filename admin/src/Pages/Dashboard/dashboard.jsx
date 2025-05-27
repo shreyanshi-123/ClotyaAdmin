@@ -23,11 +23,11 @@ function AdminDashboard() {
       {/* Sidebar */}
       <aside className="w-64 bg-gray-900 text-white p-6 hidden md:block">
         <h2 className="text-2xl font-bold mb-8">Admin Panel</h2>
-        <nav className="space-y-4">
-          <button className="w-full text-left hover:text-yellow-300">Dashboard</button>
-          <button className="w-full text-left hover:text-yellow-300">Users</button>
-          <button className="w-full text-left hover:text-yellow-300">Categories</button>
-           <button className="w-full text-left hover:text-yellow-300">Products</button>
+        <nav className="flex flex-col gap-4">
+         <a href='/dashboard'> <button className="w-full text-left hover:text-yellow-300">Dashboard</button></a>
+         <a href='#'> <button className="w-full text-left hover:text-yellow-300">Users</button></a> 
+         <a href='#'>  <button className="w-full text-left hover:text-yellow-300">Categories</button></a>
+         <a href='#'>   <button className="w-full text-left hover:text-yellow-300">Products</button></a>
           <button
             onClick={handleLogout}
             className="w-full text-left text-red-400 hover:text-red-600 mt-6"
@@ -44,17 +44,21 @@ function AdminDashboard() {
           <p className="text-gray-700">Welcome, Admin! Here's an overview of your system.</p>
 
           {/* Example Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
             <div className="bg-blue-100 p-4 rounded-md text-center">
-              <p className="text-lg font-medium">Total Users</p>
-              <p className="text-2xl font-bold mt-2">234</p>
+              <p className="text-lg font-medium">Total Sales Amount</p>
+              <p className="text-2xl font-bold mt-2">&#8377; 23,400</p>
             </div>
             <div className="bg-green-100 p-4 rounded-md text-center">
-              <p className="text-lg font-medium">Active Sessions</p>
+              <p className="text-lg font-medium">Total Orders</p>
               <p className="text-2xl font-bold mt-2">42</p>
             </div>
             <div className="bg-yellow-100 p-4 rounded-md text-center">
-              <p className="text-lg font-medium">Pending Requests</p>
+              <p className="text-lg font-medium">Total Products</p>
+              <p className="text-2xl font-bold mt-2">10</p>
+            </div>
+            <div className="bg-red-100 p-4 rounded-md text-center">
+              <p className="text-lg font-medium">Total Users</p>
               <p className="text-2xl font-bold mt-2">5</p>
             </div>
           </div>
