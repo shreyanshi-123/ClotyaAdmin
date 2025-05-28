@@ -28,7 +28,8 @@ function UserLogin() {
     console.log(signInData);
     setError("");
     try {
-      const response = await fetch(`http://localhost:5000/api/login`, {
+      // const response = await fetch(`http://localhost:5000/api/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signInData),
@@ -46,7 +47,7 @@ function UserLogin() {
         sessionStorage.setItem("token", data.token);
         localStorage.setItem('isUserLoggedIn', 'true');
         window.location.href = '/dashboard';
-        alert(`Welcome back, ${data.user.name}!`);
+        
       } else {
         setError('Invalid User Role');
       }
@@ -79,9 +80,9 @@ function UserLogin() {
 
   return (
 
-    <div className=' my-[80px] max-w-7xl mx-auto '>
-      <div className='mt-[]  mx-auto'>
-        <div className='px-[15px] mx-auto max-w-[560px] w-full'>
+    <div className='  max-w-7xl m-auto h-screen '>
+      <div className='mt-[]  mx-auto h-full flex items-center'>
+        <div className='px-[15px] m-auto max-w-[560px] w-full'>
           <div className='flex flex-col  lg:border border-[#dee0ea;] rounded-[2px] lg:p-[60px]'>
             <div className="flex justify-center">
               <NavLink to="https://clotyaecom.vercel.app/" className="block w-auto">

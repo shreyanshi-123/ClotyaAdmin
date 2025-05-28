@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
-import Home from './Pages/Dashboard/dashboard';
+import Categories from './Pages/Dashboard/category';
 
 import PageNotFound from './components/Layout/PageNotFound';
-// import Dashboard from './components/Dashboard/dashboard';
+import Users from './Pages/Dashboard/Users';
 import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute'; // Import the ProtectedRoute component
 import AdminLogin from './Pages/Admin/adminLogin';
@@ -52,6 +52,28 @@ function App() {
                   redirectPath="/"
                 >
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute
+                  isLoggedIn={isUserLoggedIn}
+                  redirectPath="/"
+                >
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/categories"
+              element={
+                <ProtectedRoute
+                  isLoggedIn={isUserLoggedIn}
+                  redirectPath="/"
+                >
+                  <Categories />
                 </ProtectedRoute>
               }
             />

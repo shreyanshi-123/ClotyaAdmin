@@ -1,23 +1,19 @@
 import { Outlet } from "react-router-dom";
-import Header from "./Header/Header";
-import Footer from "./Footer/Footer";
-import React from "react";
+import Sidebar from "../sidebar";
+import React, { useState, useEffect } from "react";
 
 const Layout = () => {
-  // Check if user is logged in (e.g., from localStorage)
-  // const isLoggedIn = !!localStorage.getItem("isUserLoggedIn");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // if (!isLoggedIn) {
-  //   // User not logged in - render only the child routes (login pages etc.)
-  //   return <Outlet />;
-  // }
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isUserLoggedIn");
+    setIsLoggedIn(loggedIn === "true"); 
+  }, []);
 
-  // User is logged in - render header, footer and child routes
   return (
     <>
-      {/* <Header /> */}
+      {isLoggedIn && <Sidebar />}
       <Outlet />
-      {/* <Footer /> */}
     </>
   );
 };

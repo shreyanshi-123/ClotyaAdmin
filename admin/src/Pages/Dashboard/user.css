@@ -1,0 +1,17 @@
+.user {
+    color: #5b21b6;
+    background: #ddd;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 3px;
+    width: fit-content;
+    
+}
+.admin {
+    color: #b65a21;
+    background: #ddd;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 3px;
+     width: fit-content;
+}
