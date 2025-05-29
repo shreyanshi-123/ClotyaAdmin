@@ -15,10 +15,32 @@ function UserLogin() {
     const UserList = filterUsersByRole('user');
 
 
+
+    const deleteUser = async (userId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+        if (!confirmDelete) return;
+
+        try {
+            // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/deleteUser/${userId}`, {
+            const response = await fetch(`http://localhost:5000/api/deleteUser/${userId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            // Remove the user from the state
+            setUsers((prevUsers) => prevUsers.filter(user => user._id !== userId));
+        } catch (err) {
+            setError(err.message);  // Handle error
+        }
+    };
+
     const fetchUsers = async () => {
         try {
-             const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
-            // const response = await fetch('http://localhost:5000/api/user', {
+            //  const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
+            const response = await fetch('http://localhost:5000/api/user', {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -27,7 +49,7 @@ function UserLogin() {
                 throw new Error("Invalid credentials or user not found");
             }
             const data = await response.json();
-
+            console.log(data);
             setUsers(data);
         } catch (err) {
             setError(err.message);
@@ -48,7 +70,7 @@ function UserLogin() {
                     {error && <p className="text-red-500">{error}</p>}
                     <div className='border-b pb-5 border-gray-300 flex justify-between'>
                         <h2 className='text-xl font-semibold capitalize flex items-center'>Users</h2>
-                        <button className='hover:text-[#209569] hover:bg-[#ddd] px-[16px] py-[8px] text-white bg-[#209569] font-semibold rounded-[3px]'>Add User</button>
+                       <a href="/AddUser"> <button className='hover:text-[#209569] hover:bg-[#ddd] px-[16px] py-[8px] text-white bg-[#209569] font-semibold rounded-[3px]'>Add User</button></a>
                     </div>
                     {/* {users.length === 0 && !error && <div className='flex text-center w-full justify-center'>Loading users...</div>} */}
 
@@ -72,7 +94,7 @@ function UserLogin() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    UserList.map((user, index) => (
+                                    UserList.reverse().map((user, index) => (
                                         <tr key={user.id} className='text-black bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200'>
                                             <td className="px-6 py-4 capitalize">{index + 1}</td>
                                             <td className="px-6 py-4 capitalize">
@@ -91,9 +113,10 @@ function UserLogin() {
                                                     <div className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer'>
                                                         <FontAwesomeIcon icon={faPen} className='text-[#2254b7]' />
                                                     </div>
-                                                    <div className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer'>
-                                                        <FontAwesomeIcon icon={faTrash} className='text-[#b72822]' />
+                                                    <div className=''>
+                                                        <button className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer' onClick={() => deleteUser(user._id)}>  <FontAwesomeIcon icon={faTrash} className='text-[#b72822]' /></button>
                                                     </div>
+
                                                 </div>
                                             </td>
                                         </tr>

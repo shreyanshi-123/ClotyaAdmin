@@ -7,6 +7,7 @@ const Layout = () => {
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isUserLoggedIn");
+    console.log(loggedIn)
     setIsLoggedIn(loggedIn === "true"); 
   }, []);
 

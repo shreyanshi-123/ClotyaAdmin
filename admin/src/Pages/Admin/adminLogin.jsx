@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { CircularProgress } from '@mui/material';
 import { NavLink } from "react-router-dom";
 import './admin.css'
 const Logo = `${process.env.REACT_APP_API_URL}/assets/images/logo-white.webp`;
 function UserLogin() {
   const [username, setUsername] = useState('');
+   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isActive, setIsActive] = useState(false);
+  
+  const [formSuccess, setFormSuccess] = useState("");
 
   const navigate = useNavigate();
 
@@ -21,15 +25,27 @@ function UserLogin() {
     setActiveTab(tab);
   };
 
+  const resetForm = () => {
+    // setUsername("")
+    setPassword('');
+    setEmail('');
+
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent the default form submission (page reload)
 
     const signInData = { email, password };
     console.log(signInData);
     setError("");
+    resetForm();
+    setTimeout(() => {
+      setError('');
+
+    }, 10000);
     try {
-      // const response = await fetch(`http://localhost:5000/api/login`, {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
+      const response = await fetch(`http://localhost:5000/api/login`, {
+        // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signInData),
@@ -41,19 +57,35 @@ function UserLogin() {
 
       const data = await response.json();
 
-     
+
       if (data.user.role === 'admin') {
+        setFormSuccess('LoggedIn successfully')
+        resetForm();
+        setTimeout(() => {
+          setFormSuccess('');
+
+        }, 10000);
         sessionStorage.setItem("user", JSON.stringify(data.user));
         sessionStorage.setItem("token", data.token);
         localStorage.setItem('isUserLoggedIn', 'true');
         window.location.href = '/dashboard';
-        
+
       } else {
         setError('Invalid User Role');
+        resetForm();
+        setTimeout(() => {
+          setError('');
+
+        }, 10000);
       }
 
     } catch (err) {
       setError(err.message);
+      resetForm();
+      setTimeout(() => {
+        setError('');
+
+      }, 10000);
     }
   };
 
@@ -135,11 +167,30 @@ function UserLogin() {
                   >
                     Login
                   </button>
-                  {error && <div className="text-black mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{error}</div>}
+                 
 
-                  {/* <p className="">
-                  <a href="#" className='text-[16px] text-[#ee403d] no-underline'>Lost your password?</a>
-                </p> */}
+                  {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
+                  {formSuccess && (
+
+
+                    <span className='mb-[16px] p-[16px] border border-[#ddd] text-[14px] flex text-success'>{formSuccess}</span>
+
+                  )}
+
+                  <div className='justify-center flex gap-2'>
+                    {loading && (<>
+                      <CircularProgress
+                        sx={{
+                          color: (theme) =>
+                            theme.palette.grey[theme.palette.mode === 'dark' ? 400 : 800],
+                        }}
+                        size={20}
+                        thickness={4}
+                        value={100}
+                      />
+                      Loading..
+                    </>
+                    )} </div>
                 </form>
               </div>
 
