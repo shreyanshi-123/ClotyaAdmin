@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
-import Sidebar from '../../components/sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMale, faPen, faTrash, faUserAlt } from '@fortawesome/free-solid-svg-icons';
 import './user.css'
@@ -14,15 +13,17 @@ function UserLogin() {
 
     const UserList = filterUsersByRole('user');
 
-
+    const baseUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:5000'  // or whatever your local API URL is
+        : process.env.REACT_APP_API_URL;
 
     const deleteUser = async (userId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this user?");
         if (!confirmDelete) return;
 
         try {
-            // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/deleteUser/${userId}`, {
-            const response = await fetch(`http://localhost:5000/api/deleteUser/${userId}`, {
+            const response = await fetch(`${baseUrl}/api/deleteUser/${userId}`, {
+                // const response = await fetch(`http://localhost:5000/api/deleteUser/${userId}`, {
                 method: 'DELETE',
             });
 
@@ -40,7 +41,7 @@ function UserLogin() {
     const fetchUsers = async () => {
         try {
             //  const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
-            const response = await fetch('http://localhost:5000/api/user', {
+            const response = await fetch(`${baseUrl}/api/user `, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -70,7 +71,7 @@ function UserLogin() {
                     {error && <p className="text-red-500">{error}</p>}
                     <div className='border-b pb-5 border-gray-300 flex justify-between'>
                         <h2 className='text-xl font-semibold capitalize flex items-center'>Users</h2>
-                       <a href="/AddUser"> <button className='hover:text-[#209569] hover:bg-[#ddd] px-[16px] py-[8px] text-white bg-[#209569] font-semibold rounded-[3px]'>Add User</button></a>
+                        <a href="/AddUser"> <button className='hover:text-[#209569] hover:bg-[#ddd] px-[16px] py-[8px] text-white bg-[#209569] font-semibold rounded-[3px]'>Add User</button></a>
                     </div>
                     {/* {users.length === 0 && !error && <div className='flex text-center w-full justify-center'>Loading users...</div>} */}
 
@@ -99,9 +100,16 @@ function UserLogin() {
                                             <td className="px-6 py-4 capitalize">{index + 1}</td>
                                             <td className="px-6 py-4 capitalize">
                                                 <div className='flex gap-2 items-center'>
-                                                    <div className="profile w-12 h-12 rounded-[50%] bg-[#ddd] flex items-center justify-center">
-                                                        <FontAwesomeIcon icon={faUserAlt} className='text-[#fff] text-[20px]' />
+                                                    <div className="profile w-12 h-12 rounded-[50%] bg-[#ddd] flex items-center justify-center overflow-hidden">
+                                                        {user.image ? (
+                                                            <img src={`${baseUrl}${user.image}`} alt="User profile" className=' w-full h-full' />
+                                                        ) : (
+                                                            <FontAwesomeIcon icon={faUserAlt} className="text-[#fff] text-[20px]" />
+                                                        )}
+
+
                                                     </div>
+
                                                     {user.name}
                                                 </div>
                                             </td>
@@ -110,9 +118,9 @@ function UserLogin() {
                                             <td className="px-6 py-4">{user.date ? user.date.split('T')[0] : ''}</td>
                                             <td className="px-6 py-4">
                                                 <div className='flex gap-2'>
-                                                    <div className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer'>
+                                                   <a href={`/addUser/${user._id}`}> <button className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer' >
                                                         <FontAwesomeIcon icon={faPen} className='text-[#2254b7]' />
-                                                    </div>
+                                                    </button></a>
                                                     <div className=''>
                                                         <button className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer' onClick={() => deleteUser(user._id)}>  <FontAwesomeIcon icon={faTrash} className='text-[#b72822]' /></button>
                                                     </div>

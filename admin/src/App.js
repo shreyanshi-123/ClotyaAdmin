@@ -78,7 +78,7 @@ function App() {
               }
             />
              <Route
-              path="/AddUser"
+              path="/AddUser/:id?"
               element={
                 <ProtectedRoute
                   isLoggedIn={isUserLoggedIn}

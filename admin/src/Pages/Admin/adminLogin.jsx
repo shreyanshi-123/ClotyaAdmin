@@ -25,6 +25,12 @@ function UserLogin() {
     setActiveTab(tab);
   };
 
+
+    const baseUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:5000'  // or whatever your local API URL is
+        : process.env.REACT_APP_API_URL;
+
+
   const resetForm = () => {
     // setUsername("")
     setPassword('');
@@ -35,6 +41,7 @@ function UserLogin() {
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent the default form submission (page reload)
 
+    setLoading(true);
     const signInData = { email, password };
     console.log(signInData);
     setError("");
@@ -44,7 +51,7 @@ function UserLogin() {
 
     }, 10000);
     try {
-      const response = await fetch(`http://localhost:5000/api/login`, {
+      const response = await fetch(`${baseUrl}/api/login`, {
         // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,6 +59,7 @@ function UserLogin() {
       });
 
       if (!response.ok) {
+         setLoading(false);
         throw new Error("Invalid credentials or user not found");
       }
 
@@ -59,20 +67,22 @@ function UserLogin() {
 
 
       if (data.user.role === 'admin') {
+          setLoading(false);
         setFormSuccess('LoggedIn successfully')
-        resetForm();
-        setTimeout(() => {
-          setFormSuccess('');
+        
+        // setTimeout(() => {
+        //   setFormSuccess('');
 
-        }, 10000);
+        // }, 10000);
         sessionStorage.setItem("user", JSON.stringify(data.user));
         sessionStorage.setItem("token", data.token);
         localStorage.setItem('isUserLoggedIn', 'true');
         window.location.href = '/dashboard';
 
       } else {
+         setLoading(false);
         setError('Invalid User Role');
-        resetForm();
+        // resetForm();
         setTimeout(() => {
           setError('');
 
@@ -81,7 +91,7 @@ function UserLogin() {
 
     } catch (err) {
       setError(err.message);
-      resetForm();
+      // resetForm();
       setTimeout(() => {
         setError('');
 
@@ -91,24 +101,6 @@ function UserLogin() {
 
 
 
-  // const handleLogin = (e) => {
-  //   console.log('shshs')
-  //   e.preventDefault();
-
-  //   const userUsername = process.env.REACT_APP_ADMIN_ADMINNAME;
-  //   const userPassword = process.env.REACT_APP_ADMIN_PASSWORD;
-  //   const email = process.env.REACT_APP_ADMIN_EMAIL
-
-  //   if (username === userUsername && password === userPassword) {
-
-  //     localStorage.setItem('isUserLoggedIn', 'true');
-  //     sessionStorage.setItem('isUserLoggedIn', 'true');
-  //     console.log('shshs')
-  //     window.location.href = '/dashboard';
-  //   } else {
-  //     setError('Error: Invalid username or password');
-  //   }
-  // };
 
   return (
 
@@ -148,7 +140,7 @@ function UserLogin() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
                       className='border rounded-[2px] border-[#ddd] py-[8px] px-[15px] w-full'
-                      required
+                    required
                     />
                   </p>
                   <p className='mb-[16px] flex gap-[4px]'> <input
@@ -165,7 +157,7 @@ function UserLogin() {
                     type="submit"
                     className='hover:opacity-[0.8] border border-[#ee403d;] mb-[16px] text-white bg-[#ee403d] py-[8px] px-[15px] w-fit rounded-[2px]'
                   >
-                    Login
+                  {loading ? "loading..." : "Login"}
                   </button>
                  
 
@@ -177,7 +169,7 @@ function UserLogin() {
 
                   )}
 
-                  <div className='justify-center flex gap-2'>
+                  {/* <div className='justify-center flex gap-2'>
                     {loading && (<>
                       <CircularProgress
                         sx={{
@@ -190,7 +182,7 @@ function UserLogin() {
                       />
                       Loading..
                     </>
-                    )} </div>
+                    )} </div> */}
                 </form>
               </div>
 
