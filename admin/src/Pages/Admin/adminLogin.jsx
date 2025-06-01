@@ -45,11 +45,8 @@ function UserLogin() {
     const signInData = { email, password };
     console.log(signInData);
     setError("");
-    resetForm();
-    setTimeout(() => {
-      setError('');
-
-    }, 10000);
+    // resetForm();
+   
     try {
       const response = await fetch(`${baseUrl}/api/login`, {
         // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {

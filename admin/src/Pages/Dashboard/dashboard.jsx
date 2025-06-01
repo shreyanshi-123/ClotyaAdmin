@@ -12,17 +12,14 @@ function AdminDashboard() {
     }
   }, [navigate]);
 
-
-
-
   return (
     <div className="flex min-h-screen w-full">
       {/* Sidebar */}
-      
+      <Sidebar />
 
       {/* Main Content */}
-      <main className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen">
-        <div className='m-8'>
+      <main className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen bg-gray-50">
+        <div className="m-8">
           <h1 className="text-3xl font-semibold mb-4">Admin Dashboard</h1>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <p className="text-gray-700">Welcome, Admin! Here's an overview of your system.</p>
@@ -49,7 +46,6 @@ function AdminDashboard() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }

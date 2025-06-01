@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMale, faPen, faTrash, faUserAlt } from '@fortawesome/free-solid-svg-icons';
-import './user.css'
-
+import { faPen, faTrash, faUserAlt } from '@fortawesome/free-solid-svg-icons';
+import './user.css';
 
 function UserLogin() {
     const [error, setError] = useState('');
     const [users, setUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 10;
 
-    const filterUsersByRole = (role) => users.filter(user => user.role === role);
+    const baseUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:5000'
+        : process.env.REACT_APP_API_URL;
+
+    const filterUsersByRole = (role) =>
+        users
+            .filter(user => user.role === role)
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const UserList = filterUsersByRole('user');
 
-    const baseUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000'  // or whatever your local API URL is
-        : process.env.REACT_APP_API_URL;
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = UserList.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(UserList.length / usersPerPage);
 
     const deleteUser = async (userId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this user?");
@@ -23,7 +32,6 @@ function UserLogin() {
 
         try {
             const response = await fetch(`${baseUrl}/api/deleteUser/${userId}`, {
-                // const response = await fetch(`http://localhost:5000/api/deleteUser/${userId}`, {
                 method: 'DELETE',
             });
 
@@ -31,17 +39,15 @@ function UserLogin() {
                 throw new Error('Failed to delete user');
             }
 
-            // Remove the user from the state
             setUsers((prevUsers) => prevUsers.filter(user => user._id !== userId));
         } catch (err) {
-            setError(err.message);  // Handle error
+            setError(err.message);
         }
     };
 
     const fetchUsers = async () => {
         try {
-            //  const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
-            const response = await fetch(`${baseUrl}/api/user `, {
+            const response = await fetch(`${baseUrl}/api/user`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -50,7 +56,6 @@ function UserLogin() {
                 throw new Error("Invalid credentials or user not found");
             }
             const data = await response.json();
-            console.log(data);
             setUsers(data);
         } catch (err) {
             setError(err.message);
@@ -59,25 +64,27 @@ function UserLogin() {
 
     useEffect(() => {
         fetchUsers();
-
     }, []);
 
     return (
-        <div className='flex min-h-screen sm:min-w-full'>
-
-            <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen'>
-
-                <div className='flex flex-col gap-6 p-4 sm:p-10 pb-6 overflow-hidden'>
-                    {error && <p className="text-red-500">{error}</p>}
-                    <div className='border-b pb-5 border-gray-300 flex justify-between'>
-                        <h2 className='text-xl font-semibold capitalize flex items-center'>Users</h2>
-                        <a href="/AddUser"> <button className='hover:text-[#209569] hover:bg-[#ddd] px-[16px] py-[8px] text-white bg-[#209569] font-semibold rounded-[3px]'>Add User</button></a>
+        <div className='flex min-h-screen sm:min-w-full bg-gray-100'>
+            <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-6'>
+                <div className='flex flex-col gap-6 p-6 sm:p-10 pb-6 overflow-hidden bg-white rounded-lg shadow-lg'>
+                    {error && <p className="text-red-600 font-semibold">{error}</p>}
+                    <div className='border-b pb-5 border-gray-300 flex justify-between items-center'>
+                        <h2 className='text-2xl font-semibold capitalize flex items-center gap-2'>
+                            Users <FontAwesomeIcon icon={faUserAlt} className="text-[#209569]" />
+                        </h2>
+                        <a href="/AddUser" className="inline-block">
+                            <button className='hover:text-[#209569] hover:bg-[#e6f4f1] px-5 py-2 text-white bg-[#209569] font-semibold rounded-md transition duration-300 shadow-md hover:shadow-lg'>
+                                Add User
+                            </button>
+                        </a>
                     </div>
-                    {/* {users.length === 0 && !error && <div className='flex text-center w-full justify-center'>Loading users...</div>} */}
 
-                    <div className='bg-white rounded-sm border border-gray-300 w-full'>
-                        <Table className='w-full text-[15px] text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg'>
-                            <thead className='text-[18pxpx] text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+                    <div className='rounded-lg border border-gray-300 w-full overflow-x-auto shadow-md'>
+                        <Table className='w-full text-[15px] text-left text-gray-700 dark:text-gray-400'>
+                            <thead className='text-[18px] text-gray-700 bg-gray-50'>
                                 <tr>
                                     <th scope="col" className="px-6 py-3">S. No.</th>
                                     <th scope="col" className="px-6 py-3">Name</th>
@@ -90,50 +97,103 @@ function UserLogin() {
                             <tbody>
                                 {users.length === 0 && !error ? (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-10">
+                                        <td colSpan={6} className="text-center py-10 text-gray-500 font-medium">
                                             Loading users...
                                         </td>
                                     </tr>
                                 ) : (
-                                    UserList.reverse().map((user, index) => (
-                                        <tr key={user.id} className='text-black bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200'>
-                                            <td className="px-6 py-4 capitalize">{index + 1}</td>
+                                    currentUsers.map((user, index) => (
+                                        <tr
+                                            key={user._id}
+                                            className='text-black bg-white border-b border-gray-200 hover:bg-[#f0fdf9] transition-colors duration-200'
+                                        >
+                                            <td className="px-6 py-4 capitalize font-semibold">{indexOfFirstUser + index + 1}</td>
                                             <td className="px-6 py-4 capitalize">
-                                                <div className='flex gap-2 items-center'>
-                                                    <div className="profile w-12 h-12 rounded-[50%] bg-[#ddd] flex items-center justify-center overflow-hidden">
+                                                <div className='flex gap-3 items-center'>
+                                                    <div className="profile w-12 h-12 rounded-full bg-[#20956933] flex items-center justify-center overflow-hidden border-2 border-[#209569]">
                                                         {user.image ? (
-                                                            <img src={`${baseUrl}${user.image}`} alt="User profile" className=' w-full h-full' />
+                                                            <img src={`${baseUrl}${user.image}`} alt="User profile" className='w-full h-full object-cover' />
                                                         ) : (
-                                                            <FontAwesomeIcon icon={faUserAlt} className="text-[#fff] text-[20px]" />
+                                                            <FontAwesomeIcon icon={faUserAlt} className="text-[#209569] text-[22px]" />
                                                         )}
-
-
                                                     </div>
-
-                                                    {user.name}
+                                                    <span className='font-semibold text-gray-800'>{user.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">{user.email}</td>
-                                            <td className="px-6 py-4 capitalize"><div className={`${user.role}`}>{user.role}</div></td>
-                                            <td className="px-6 py-4">{user.date ? user.date.split('T')[0] : ''}</td>
+                                            <td className="px-6 py-4 text-gray-600">{user.email}</td>
+                                            <td className="px-6 py-4 capitalize">
+                                                <span
+                                                    className={`inline-block px-3 py-1 rounded-full text-sm font-semibold
+                                                    ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
+                                                >
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-500 font-mono">
+                                                {user.date ? new Date(user.date).toLocaleDateString() : ''}
+                                            </td>
                                             <td className="px-6 py-4">
-                                                <div className='flex gap-2'>
-                                                   <a href={`/addUser/${user._id}`}> <button className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer' >
-                                                        <FontAwesomeIcon icon={faPen} className='text-[#2254b7]' />
-                                                    </button></a>
-                                                    <div className=''>
-                                                        <button className='rounded-[50%] bg-[#ddd] p-2 flex justify-center cursor-pointer' onClick={() => deleteUser(user._id)}>  <FontAwesomeIcon icon={faTrash} className='text-[#b72822]' /></button>
+                                                <td className="px-6 py-4">
+                                                    <div className='flex gap-3 justify-center'>
+                                                        <a href={`/addUser/${user._id}`}>
+                                                            <button
+                                                                className='bg-blue-100 hover:bg-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition'
+                                                                title="Edit User"
+                                                            >
+                                                                <FontAwesomeIcon icon={faPen} className='text-blue-600' />
+                                                            </button>
+                                                        </a>
+                                                        <button
+                                                            className='bg-red-100 hover:bg-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition'
+                                                            onClick={() => deleteUser(user._id)}
+                                                            title="Delete User"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} className='text-red-600' />
+                                                        </button>
                                                     </div>
+                                                </td>
 
-                                                </div>
                                             </td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </Table>
-
                     </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center mt-6 gap-3">
+                            <button
+                                className={`px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 font-semibold transition duration-200
+                                    ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                            >
+                                Prev
+                            </button>
+
+                            {[...Array(totalPages)].map((_, index) => (
+                                <button
+                                    key={index}
+                                    className={`px-4 py-2 rounded-md font-semibold transition duration-200
+                                        ${currentPage === index + 1 ? 'bg-[#209569] text-white' : 'bg-gray-100 hover:bg-gray-300'}`}
+                                    onClick={() => setCurrentPage(index + 1)}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                className={`px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 font-semibold transition duration-200
+                                    ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

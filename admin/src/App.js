@@ -9,7 +9,7 @@ import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute'; // Import the ProtectedRoute component
 import AdminLogin from './Pages/Admin/adminLogin';
 
-
+import AddOrEditCategory from './Pages/Dashboard/addCategor'
 
 function App() {
  const [isUserLoggedIn, setIsUserLoggedIn] = useState(
@@ -40,7 +40,8 @@ function App() {
             
             <Route path='*' element={<PageNotFound />} />
 
-
+ <Route path="/add-category" element={<AddOrEditCategory />} />
+    <Route path="/edit-category/:id" element={<AddOrEditCategory />} />
             {/* User Routes */}
             {/* <Route path="/login" element={<AdminLogin />} /> */}
             
