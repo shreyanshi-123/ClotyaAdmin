@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
-import Categories from './Pages/Dashboard/category';
-import AddUser from './Pages/Dashboard/AddUser'
+import Categories from './Pages/Dashboard/Category/category';
+import AddOrEditCategory from './Pages/Dashboard/Category/addCategor'
+import Users from './Pages/Dashboard/User/Users';
+import AddUser from './Pages/Dashboard/User/AddUser'
+
 import PageNotFound from './components/Layout/PageNotFound';
-import Users from './Pages/Dashboard/Users';
+
 import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute'; // Import the ProtectedRoute component
 import AdminLogin from './Pages/Admin/adminLogin';
 
-import AddOrEditCategory from './Pages/Dashboard/addCategor'
+
 
 function App() {
- const [isUserLoggedIn, setIsUserLoggedIn] = useState(
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(
     localStorage.getItem('isUserLoggedIn') === 'true'
   );
 
   // Listen for changes in localStorage across different tabs
   useEffect(() => {
     const handleStorageChange = () => {
-     
+
       setIsUserLoggedIn(sessionStorage.getItem('isUserLoggedIn') === 'true');
     };
 
@@ -36,15 +39,33 @@ function App() {
       <BrowserRouter  >
         <Routes>
           <Route path='/' element={<Layout />}>
-            <Route index element={<AdminLogin />} />
-            
+            <Route index element={<ProtectedRoute
+              isLoggedIn={!isUserLoggedIn}
+              redirectPath="/dashboard"
+            >
+              <AdminLogin />
+            </ProtectedRoute>} />
+
             <Route path='*' element={<PageNotFound />} />
 
- <Route path="/add-category" element={<AddOrEditCategory />} />
-    <Route path="/edit-category/:id" element={<AddOrEditCategory />} />
-            {/* User Routes */}
-            {/* <Route path="/login" element={<AdminLogin />} /> */}
-            
+            <Route path="/add-category" element={
+              <ProtectedRoute
+                isLoggedIn={isUserLoggedIn}
+                redirectPath="/"
+              >
+                <AddOrEditCategory />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-category/:id" element={
+              <ProtectedRoute
+                isLoggedIn={isUserLoggedIn}
+                redirectPath="/"
+              >
+                <AddOrEditCategory />
+              </ProtectedRoute>
+            } />
+
+
             <Route
               path="/dashboard"
               element={
@@ -67,7 +88,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/categories"
               element={
                 <ProtectedRoute
@@ -78,7 +99,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/AddUser/:id?"
               element={
                 <ProtectedRoute
@@ -89,7 +110,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* <Route path='/dashboard' element={<Dashboard />} /> */}
+            
 
 
           </Route>

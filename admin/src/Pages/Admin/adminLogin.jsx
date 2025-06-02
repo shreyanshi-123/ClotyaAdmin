@@ -39,62 +39,48 @@ function UserLogin() {
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent the default form submission (page reload)
+  e.preventDefault();
 
-    setLoading(true);
-    const signInData = { email, password };
-    console.log(signInData);
-    setError("");
-    // resetForm();
-   
-    try {
-      const response = await fetch(`${baseUrl}/api/login`, {
-        // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signInData),
-      });
+  const formData = new FormData(e.target);
+  const hiddenData = formData.get('hiddenData');
 
-      if (!response.ok) {
-         setLoading(false);
+  setLoading(true);
+  setError("");
+  const signInData = { email, password, hiddenData };
+
+  try {
+    const response = await fetch(`${baseUrl}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(signInData),
+    });
+
+    if (!response.ok) {
+      setLoading(false);
+      if (response.status === 403) {
+        throw new Error("User role is not authorized");
+      } else {
         throw new Error("Invalid credentials or user not found");
       }
-
-      const data = await response.json();
-
-
-      if (data.user.role === 'admin') {
-          setLoading(false);
-        setFormSuccess('LoggedIn successfully')
-        
-        // setTimeout(() => {
-        //   setFormSuccess('');
-
-        // }, 10000);
-        sessionStorage.setItem("user", JSON.stringify(data.user));
-        sessionStorage.setItem("token", data.token);
-        localStorage.setItem('isUserLoggedIn', 'true');
-        window.location.href = '/dashboard';
-
-      } else {
-         setLoading(false);
-        setError('Invalid User Role');
-        // resetForm();
-        setTimeout(() => {
-          setError('');
-
-        }, 10000);
-      }
-
-    } catch (err) {
-      setError(err.message);
-      // resetForm();
-      setTimeout(() => {
-        setError('');
-
-      }, 10000);
     }
-  };
+
+    const data = await response.json();
+
+    setLoading(false);
+    setFormSuccess('Logged in successfully');
+    sessionStorage.setItem("user", JSON.stringify(data.user));
+    sessionStorage.setItem("token", data.token);
+    localStorage.setItem('isUserLoggedIn', 'true');
+
+    window.location.href=('/dashboard');
+
+  } catch (err) {
+    setError(err.message);
+    setLoading(false);
+    setTimeout(() => setError(''), 10000);
+  }
+};
+
 
 
 
@@ -140,6 +126,7 @@ function UserLogin() {
                     required
                     />
                   </p>
+                 <input type="hidden" name="hiddenData" value={'admin'} />
                   <p className='mb-[16px] flex gap-[4px]'> <input
                     type="checkbox"
 
@@ -154,7 +141,7 @@ function UserLogin() {
                     type="submit"
                     className='hover:opacity-[0.8] border border-[#ee403d;] mb-[16px] text-white bg-[#ee403d] py-[8px] px-[15px] w-fit rounded-[2px]'
                   >
-                  {loading ? "loading..." : "Login"}
+                  {loading ? "Loading..." : "Login"}
                   </button>
                  
 

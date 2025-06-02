@@ -110,7 +110,7 @@ function UserLogin() {
                                             <td className="px-6 py-4 capitalize font-semibold">{indexOfFirstUser + index + 1}</td>
                                             <td className="px-6 py-4 capitalize">
                                                 <div className='flex gap-3 items-center'>
-                                                    <div className="profile w-12 h-12 rounded-full bg-[#20956933] flex items-center justify-center overflow-hidden border-2 border-[#209569]">
+                                                    <div className="profile w-12 h-12 rounded-full bg-[#20956933] flex items-center justify-center overflow-hidden border-0 border-[#209569]">
                                                         {user.image ? (
                                                             <img src={`${baseUrl}${user.image}`} alt="User profile" className='w-full h-full object-cover' />
                                                         ) : (
@@ -162,7 +162,7 @@ function UserLogin() {
                     </div>
 
                     {/* Pagination */}
-                    {totalPages > 1 && (
+                    {/* {totalPages > 1 && (
                         <div className="flex justify-center mt-6 gap-3">
                             <button
                                 className={`px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 font-semibold transition duration-200
@@ -193,7 +193,7 @@ function UserLogin() {
                                 Next
                             </button>
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
         </div>

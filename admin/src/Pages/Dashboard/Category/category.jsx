@@ -9,9 +9,9 @@ function CategoryList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-const baseUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000'
-        : process.env.REACT_APP_API_URL;
+  const baseUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : process.env.REACT_APP_API_URL;
 
   const fetchCategories = async () => {
     try {
@@ -32,6 +32,25 @@ const baseUrl = window.location.hostname === 'localhost'
     }
   };
 
+   const deleteUser = async (categoryId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(`${baseUrl}/api/delete-category/${categoryId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            setCategories((prevCategories) => prevCategories.filter(Category => Category._id !== categoryId));
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -49,7 +68,7 @@ const baseUrl = window.location.hostname === 'localhost'
           {error && <p className="text-red-600 font-semibold">{error}</p>}
 
           <div className='border-b border-gray-300 pb-4 flex justify-between items-center'>
-            <h2 className='text-2xl font-semibold text-gray-800 uppercase tracking-wide'>Categories</h2>
+            <h2 className='text-2xl font-semibold text-gray-800 tracking-wide'>Categories</h2>
             <a href='/add-category'> <button
               className='bg-green-600 text-white px-5 py-2 rounded-md font-semibold shadow hover:bg-green-700 transition duration-300'
             >
@@ -78,12 +97,11 @@ const baseUrl = window.location.hostname === 'localhost'
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className='w-14 h-14 rounded-full overflow-hidden shadow-sm border border-gray-300 inline-block'>
-                        <img
-                          src={category.image}
-                          alt={category.category}
-                          className='w-full h-full object-cover'
-                          loading="lazy"
-                        />
+                        {/* {category.image ? ( */}
+                        <img src={`${baseUrl}${category.image}`} alt="User profile" className='w-full h-full object-cover' />
+                        {/* ) : ( */}
+                        {/* // <FontAwesomeIcon icon={faUserAlt} className="text-[#209569] text-[22px]" /> */}
+                        {/* )} */}
                       </div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 capitalize text-center">
@@ -99,7 +117,8 @@ const baseUrl = window.location.hostname === 'localhost'
                         </button></a>
                         <button
                           className='bg-red-100 hover:bg-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition'
-                          title="Delete Category"
+                          onClick={() => deleteUser(category._id)}
+                          title="Delete User"
                         >
                           <FontAwesomeIcon icon={faTrash} className='text-red-600' />
                         </button>
@@ -114,7 +133,7 @@ const baseUrl = window.location.hostname === 'localhost'
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
+          {/* {totalPages > 1 && (
             <div className="flex justify-center mt-6 gap-3">
               <button
                 className={`px-5 py-2 rounded-md shadow-sm text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -145,7 +164,7 @@ const baseUrl = window.location.hostname === 'localhost'
                 Next
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
