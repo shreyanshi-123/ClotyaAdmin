@@ -1,15 +1,10 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "../sidebar";
-import React, { useState, useEffect } from "react";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../sidebar';
+import { useSelector } from 'react-redux';
 
 const Layout = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isUserLoggedIn");
-    console.log(loggedIn)
-    setIsLoggedIn(loggedIn === "true"); 
-  }, []);
+  const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
 
   return (
     <>

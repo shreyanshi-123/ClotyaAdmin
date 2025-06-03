@@ -1,75 +1,60 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { getUsers, deleteUser, clearErrors } from "../../../Actions/userAction";
 import Table from 'react-bootstrap/Table';
+import { LazyLoadImage } from "react-lazy-load-image-component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash, faUserAlt } from '@fortawesome/free-solid-svg-icons';
 import './user.css';
 
-function UserLogin() {
-    const [error, setError] = useState('');
-    const [users, setUsers] = useState([]);
+function UserList() {
+    // const [error, setError] = useState('');
+    // const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 10;
+    const usersPerPage = 1000;
 
     const baseUrl = window.location.hostname === 'localhost'
         ? 'http://localhost:5000'
         : process.env.REACT_APP_API_URL;
 
-    const filterUsersByRole = (role) =>
-        users
-            .filter(user => user.role === role)
+
+
+    const dispatch = useDispatch();
+
+
+    const { users = [], loading, error } = useSelector(state => state.userList);
+// const { users = [], loading, error } = useSelector(state => state.del);
+    // alert(users)
+      const filteredUsers = users
+            .filter(user => user.role === 'user')
             .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const UserList = filterUsersByRole('user');
+              const indexOfLastUser = currentPage * usersPerPage;
+        const indexOfFirstUser = indexOfLastUser - usersPerPage;
+        const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+        const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-    const indexOfLastUser = currentPage * usersPerPage;
-    const indexOfFirstUser = indexOfLastUser - usersPerPage;
-    const currentUsers = UserList.slice(indexOfFirstUser, indexOfLastUser);
-    const totalPages = Math.ceil(UserList.length / usersPerPage);
-
-    const deleteUser = async (userId) => {
+    useEffect(() => {
+        // if (error) {
+        //     // Handle or show error here (e.g., toast)
+        //     dispatch(clearErrors());
+        // }
+        dispatch(getUsers());  // <-- Invoke action creator here
+    }, [dispatch, error]);
+    const handleDeleteUser = (userId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this user?");
         if (!confirmDelete) return;
 
-        try {
-            const response = await fetch(`${baseUrl}/api/deleteUser/${userId}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete user');
-            }
-
-            setUsers((prevUsers) => prevUsers.filter(user => user._id !== userId));
-        } catch (err) {
-            setError(err.message);
-        }
+        dispatch(deleteUser(userId));
+          dispatch(getUsers());  
     };
 
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch(`${baseUrl}/api/user`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
 
-            if (!response.ok) {
-                throw new Error("Invalid credentials or user not found");
-            }
-            const data = await response.json();
-            setUsers(data);
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
 
     return (
         <div className='flex min-h-screen sm:min-w-full bg-gray-100'>
             <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-6'>
-                <div className='flex flex-col gap-6 p-6 sm:p-10 pb-6 overflow-hidden bg-white rounded-lg shadow-lg'>
+                <div className='flex flex-col gap-6 p-6 sm:p-10 pb-6 overflow-hidden bg-white '>
                     {error && <p className="text-red-600 font-semibold">{error}</p>}
                     <div className='border-b pb-5 border-gray-300 flex justify-between items-center'>
                         <h2 className='text-2xl font-semibold capitalize flex items-center gap-2'>
@@ -82,7 +67,7 @@ function UserLogin() {
                         </a>
                     </div>
 
-                    <div className='rounded-lg border border-gray-300 w-full overflow-x-auto shadow-md'>
+                    <div className=' border-gray-300 w-full overflow-x-auto '>
                         <Table className='w-full text-[15px] text-left text-gray-700 dark:text-gray-400'>
                             <thead className='text-[18px] text-gray-700 bg-gray-50'>
                                 <tr>
@@ -95,7 +80,7 @@ function UserLogin() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.length === 0 && !error ? (
+                                {loading ? (
                                     <tr>
                                         <td colSpan={6} className="text-center py-10 text-gray-500 font-medium">
                                             Loading users...
@@ -111,6 +96,12 @@ function UserLogin() {
                                             <td className="px-6 py-4 capitalize">
                                                 <div className='flex gap-3 items-center'>
                                                     <div className="profile w-12 h-12 rounded-full bg-[#20956933] flex items-center justify-center overflow-hidden border-0 border-[#209569]">
+
+                                                        {/* {user.image && (
+                                                            <LazyLoadImage
+                                                                className="w-full object-cover object-center absolute top-0 h-full blog-banner-img" src={user.image} alt="banner"
+                                                            />
+                                                        )} */}
                                                         {user.image ? (
                                                             <img src={`${baseUrl}${user.image}`} alt="User profile" className='w-full h-full object-cover' />
                                                         ) : (
@@ -145,7 +136,7 @@ function UserLogin() {
                                                         </a>
                                                         <button
                                                             className='bg-red-100 hover:bg-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition'
-                                                            onClick={() => deleteUser(user._id)}
+                                                            onClick={() => handleDeleteUser(user._id)}
                                                             title="Delete User"
                                                         >
                                                             <FontAwesomeIcon icon={faTrash} className='text-red-600' />
@@ -200,4 +191,4 @@ function UserLogin() {
     );
 }
 
-export default UserLogin;
+export default UserList;

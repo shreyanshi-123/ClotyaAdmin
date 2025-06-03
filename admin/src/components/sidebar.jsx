@@ -1,18 +1,23 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faBarsProgress, faShapes, faPrint, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from '../Actions/userAction';
+
 
 const Logo = `${process.env.REACT_APP_API_URL}/assets/images/logo-white.webp`;
 
 const Sidebar = () => {
   const navigate = useNavigate();
+   const dispatch = useDispatch();
   const location = useLocation();
 
+  const { isLoggedIn } = useSelector(state => state.loginAdmin);
+
   const handleLogout = () => {
-  sessionStorage.clear(); // or remove individual keys
-  localStorage.removeItem('isUserLoggedIn');
-  window.location.href = '/'; // or use navigate('/login')
-};
+    dispatch(logout());  // dispatch logout action
+    navigate('/');       // navigate to home/login page
+  }
 
 
   // Helper to check active route

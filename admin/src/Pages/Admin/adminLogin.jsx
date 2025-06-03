@@ -1,23 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { useDispatch, useSelector } from "react-redux";
+import { login,setLoggedIn } from "../../Actions/userAction";
 import { CircularProgress } from '@mui/material';
 import { NavLink } from "react-router-dom";
 import './admin.css'
 const Logo = `${process.env.REACT_APP_API_URL}/assets/images/logo-white.webp`;
+
 function UserLogin() {
   const [username, setUsername] = useState('');
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
   const [isActive, setIsActive] = useState(false);
-  
+
   const [formSuccess, setFormSuccess] = useState("");
 
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('login');
 
   const handleTabClick = (tab) => (e) => {
@@ -26,9 +29,9 @@ function UserLogin() {
   };
 
 
-    const baseUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000'  // or whatever your local API URL is
-        : process.env.REACT_APP_API_URL;
+  const baseUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'  // or whatever your local API URL is
+    : process.env.REACT_APP_API_URL;
 
 
   const resetForm = () => {
@@ -37,53 +40,36 @@ function UserLogin() {
     setEmail('');
 
   }
+  const { loading: isLoading, error, users,isLoggedIn } = useSelector(state => state.loginAdmin);
+  // useEffect(() => {
+  //   if (users) {
+  //     navigate('/dashboard');
+  //   }
+  // }, [users, navigate]);
+  //  const handleSubmitd = (event) => {
+  //   event.preventDefault();
+  //   const formData = new FormData(event.target);
+  //   alert(JSON.stringify(formData))
+  //   const email = formData.get('email');
+  //   const password = formData.get('password');
+  //   const role = formData.get('hiddenData'); // this will be 'admin'
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
+  //   dispatch(login({ email, password, role }));
+  //   // navigate('/dashboard')
+  // };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const email = event.target.email.value;
+    const role = event.target.role.value;
+    const password = event.target.password.value;
+    dispatch(login(email, password, role));
+    // dispatch(setLoggedIn(true));
 
-  const formData = new FormData(e.target);
-  const hiddenData = formData.get('hiddenData');
-
-  setLoading(true);
-  setError("");
-  const signInData = { email, password, hiddenData };
-
-  try {
-    const response = await fetch(`${baseUrl}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(signInData),
-    });
-
-    if (!response.ok) {
-      setLoading(false);
-      if (response.status === 403) {
-        throw new Error("User role is not authorized");
-      } else {
-        throw new Error("Invalid credentials or user not found");
-      }
-    }
-
-    const data = await response.json();
-
-    setLoading(false);
-    setFormSuccess('Logged in successfully');
-    sessionStorage.setItem("user", JSON.stringify(data.user));
-    sessionStorage.setItem("token", data.token);
-    localStorage.setItem('isUserLoggedIn', 'true');
-
-    window.location.href=('/dashboard');
-
-  } catch (err) {
-    setError(err.message);
-    setLoading(false);
-    setTimeout(() => setError(''), 10000);
-  }
-};
-
-
-
-
+  };
+  if(isLoggedIn==='true'){
+  alert('logedin')
+  navigate('/dashboard')
+}
 
   return (
 
@@ -104,11 +90,12 @@ function UserLogin() {
 
             <div className={`flex w-[100%] form-wrapper ${activeTab === 'login' ? 'my-element ' : 'my-element active'}`}>
               <div id='login-form' className={` mt-[20px] px-[1px] w-full `}>
-                <form onSubmit={handleLogin} className='flex flex-col mt-[20px]'>
+                <form onSubmit={handleSubmit} className='flex flex-col mt-[20px]'>
                   <p className='mb-[16px]'>
                     <label htmlFor="email" className=' text-[14px] mb-[5px]'>Email address&nbsp;<span className="required" aria-hidden="true">*</span></label>
                     <input
                       type="email"
+                      name='email'
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder=""
@@ -119,14 +106,15 @@ function UserLogin() {
                     <label htmlFor="password" className=' text-[14px] mb-[5px]'>Password&nbsp;<span className="required" aria-hidden="true">*</span></label>
                     <input
                       type="password"
+                      name='password'
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder=""
                       className='border rounded-[2px] border-[#ddd] py-[8px] px-[15px] w-full'
-                    required
+                      required
                     />
                   </p>
-                 <input type="hidden" name="hiddenData" value={'admin'} />
+                  <input type="hidden" name="role" value="admin" />
                   <p className='mb-[16px] flex gap-[4px]'> <input
                     type="checkbox"
 
@@ -141,10 +129,10 @@ function UserLogin() {
                     type="submit"
                     className='hover:opacity-[0.8] border border-[#ee403d;] mb-[16px] text-white bg-[#ee403d] py-[8px] px-[15px] w-fit rounded-[2px]'
                   >
-                  {loading ? "Loading..." : "Login"}
+                    {loading ? "Loading..." : "Login"}
                   </button>
-                 
 
+{isLoggedIn && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px] ">true</div>}
                   {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
                   {formSuccess && (
 

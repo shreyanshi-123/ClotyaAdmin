@@ -1,16 +1,23 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar';
+import { useSelector } from 'react-redux';
 
 function AdminDashboard() {
   const navigate = useNavigate();
 
+  const isLoggedIn = useSelector((state) => state.loginAdmin.isLoggedIn);
+
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isUserLoggedIn');
     if (!isLoggedIn) {
-      navigate('/user/login');
+      navigate('/');
     }
-  }, [navigate]);
+  }, [isLoggedIn, navigate]);
+
+  // Optionally, you can render null or a loading state while redirecting
+  if (!isLoggedIn) {
+    return null;  // or a loader
+  }
 
   return (
     <div className="flex min-h-screen w-full">
