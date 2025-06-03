@@ -9,8 +9,10 @@ import PageNotFound from './components/Layout/PageNotFound';
 import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute';
 import AdminLogin from './Pages/Admin/adminLogin';
+import { useSelector } from 'react-redux';
 
 function App() {
+    const isUserLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
   return (
     <BrowserRouter>
       <Routes>

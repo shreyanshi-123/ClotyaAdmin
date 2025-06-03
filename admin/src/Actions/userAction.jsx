@@ -99,7 +99,7 @@ export const login = (email, password, role) => async (dispatch) => {
         const { data } = await axios.post(`${baseUrl}/api/login`, { email, password, role }, config);
 
         dispatch({ type: LOGIN_SUCCESS, payload: data });
-        alert(JSON.stringify(data.user))
+        // alert(JSON.stringify(data.user))
         // Save to sessionStorage here (or do it in the component)
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
