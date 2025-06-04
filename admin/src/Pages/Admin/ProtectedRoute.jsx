@@ -2,15 +2,16 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-function ProtectedRoute({ redirectPath = '/', children }) {
+const ProtectedRoute = ({ children }) => {
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
 
   if (!isLoggedIn) {
-    alert('notloggedin')
-    return <Navigate to={redirectPath} replace />;
+    // If not logged in, redirect to login page
+    return <Navigate to="/" replace />;
   }
 
+  // If logged in, render the children (protected component)
   return children;
-}
+};
 
 export default ProtectedRoute;
