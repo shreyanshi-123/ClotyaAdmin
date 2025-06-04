@@ -1,32 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
+import { useDispatch, useSelector } from "react-redux";
+import { createUsers,imageUpload,updateUsers,getUserById } from '../../../Actions/userAction'
+
 import './user.css'
 
 function UserLogin() {
   // Register
 
 
-  const [editingUser, setEditingUser] = useState(null);  // State to track the user being edited
+  const [editingUser, setEditingUser] = useState(null); 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState('');
+ 
   const [activeTab, setActiveTab] = useState('login');
   const [formData, setFormData] = useState({ name: '', email: '', password: '', image: '', role: 'user' });
-  const [loading, setLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
+
   const [email, setEmail] = useState('');
-  const [isActive, setIsActive] = useState(false);
   const [formSuccess, setFormSuccess] = useState("");
   const navigate = useNavigate();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [file, setFile] = useState();
+  const dispatch = useDispatch();
+
+const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+   const { users = [], loading, error } = useSelector(state => state.newUser);
+     const { user,  } = useSelector(state => state.userDetail);
+  const { image } = useSelector(state => state.imageUser);
+  console.log(image)
 
 
   const baseUrl = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000'  // or whatever your local API URL is
+    ? 'http://localhost:5000'  
     : process.env.REACT_APP_API_URL;
 
   const handleFileChange = (e) => {
@@ -50,119 +57,95 @@ function UserLogin() {
   };
 
   const { id } = useParams();
+ 
+  useEffect(() => {
+    if (id) {
+      dispatch(getUserById(id));
+    }
+  }, [dispatch, id]);
+
   useEffect(() => {
     if (!id) return;
+    
+    
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        image: user.image || '',
+      });
+    
+  }, [user]);
 
-    const fetchUser = async () => {
-     
-      setLoading(true);
-      try {
-        const res = await fetch(`${baseUrl}/api/get-user/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch user');
-        const data = await res.json();
 
-        setFormData({
-          name: data.name || '',
-          email: data.email || '',
-          password: '',
-          role: data.role || 'user',
-          image: data.image || '',
-        });
 
-        setEditingUser(data);
 
-        if (data.image) {
-          setPreview(`${baseUrl}${data.image}`);
-        }
-        setError('');
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+
+const uploadImage = async () => {
+  if (!selectedImage) return formData.image || '';
+
+  const data = new FormData();
+  data.append('image', selectedImage);
+
+  try {
+    const response = await dispatch(imageUpload(data));
+    // Assuming your backend returns { filePath: '...' }
+    return response.filePath || response.imagePath || formData.image || '';
+  } catch (error) {
+    alert('Image upload failed: ' + error.message);
+    return '';
+  }
+};
+
+ 
+
+const updateUser = async (e) => {
+  e.preventDefault();
+  if (!id) {
+    alert("No user is being edited.");
+    return;
+  }
+
+  try {
+    let imagePath = formData.image;
+
+    if (selectedImage) {
+      imagePath = await uploadImage(); // Upload image and get new path
+      // Optionally update formData.image here too:
+      setFormData(prev => ({ ...prev, image: imagePath }));
+    }
+
+    // Prepare the updated user data to send
+    const userData = {
+      _id: id,
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      image: imagePath,
     };
 
-    fetchUser();
-  }, []);
-
-
-
-  const uploadImage = async () => {
-    if (!selectedImage) return '';
-    const data = new FormData();
-    data.append('image', selectedImage);
-
-    const res = await fetch(`${baseUrl}/api/upload`, {
-      method: 'POST',
-      body: data,
-    });
-
-    const json = await res.json();
-    if (res.ok) return json.filePath;
-    else throw new Error(json.msg || 'Image upload failed');
-  };
-
-
-  // uodateUser
-  const updateUser = async (e) => {
-    e.preventDefault();
-    if (!id) {
-      alert("No user is being edited.");
-      return;
+    if (formData.password) {
+      userData.password = formData.password; // Only include password if entered
     }
+     alert(JSON.stringify(userData))
+    // Dispatch updateUsers with the updated data
+    const updatedUser = await dispatch(updateUsers(id, userData));
 
-    try {
-      let imagePath = formData.image;
-
-      if (selectedImage) {
-        imagePath = await uploadImage();
-      }
-
-      // Prepare payload: send password only if not empty
-      const userData = {
-        _id: id,
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-        image: imagePath,
-      };
-
-      if (formData.password) {
-        userData.password = formData.password;
-      }
-      // alert(JSON.stringify(userData));
-      const response = await fetch(`${baseUrl}/api/editUser/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const responseBody = await response.json();
-
-      if (!response.ok) {
-        throw new Error(`Failed to update user. Status: ${response.status}`);
-      }
-
-      const updatedUser = responseBody;
-
-      setUsers((prevUsers) =>
-        prevUsers.map((user) => (user._id === updatedUser._id ? updatedUser : user))
-      );
-
-      // setFormData({ name: '', email: '', role: 'user', password: '', image: '' });
-      navigate('/users')
-      setEditingUser(null);
-      setSelectedImage(null);
-      setPreview(null);
-      setFormSuccess('User updated successfully');
-      
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
+ 
+    // Update local user list with the updated user info
+    // setUsers((prevUsers) =>
+    //   prevUsers.map((user) => (user._id === updatedUser._id ? updatedUser : user))
+    // );
+navigate('/users')
+    // Reset form and UI states
+    setEditingUser(null);
+    setSelectedImage(null);
+    setPreview(null);
+    setFormSuccess('User updated successfully');
+  } catch (err) {
+    // Handle error (e.g., setError(err.message))
+  }
+};
 
 
 
@@ -174,47 +157,24 @@ function UserLogin() {
       return;
     }
 
+    let imagePath = '';
+    if (selectedImage) {
+      imagePath = await uploadImage();
 
-    setLoading(true);
-    setError('');
-    setFormSuccess('');
-
-    try {
-      // 1. Upload image first (if any)
-      let imagePath = '';
-      if (selectedImage) {
-        imagePath = await uploadImage();
-
-      }
-
-      // 2. Register user with image path
-      const response = await fetch(`${baseUrl}/api/register-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, image: imagePath }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        setError(errorText || 'Failed to register user');
-      } else {
-        setFormSuccess('User registered successfully');
-        navigate('/users')
-        // setFormData({ name: '', email: '', password: '', role: 'user' });
-        setSelectedImage(null);
-        setPreview(null);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
+
+
+    const newUserData = { ...formData, image: imagePath };
+    console.log(newUserData)
+    await dispatch(createUsers(newUserData));
+    navigate('/users')
+
   };
 
 
-  //  
 
 
+ 
 
   const [preview, setPreview] = useState(null);
 
@@ -238,7 +198,7 @@ function UserLogin() {
           {/* <p>user id: {id}</p> */}
           <h2 className='border-b pb-3 border-gray-300 text-xl font-semibold capitalize flex items-center '> {id ? ("Edit User") : ("Add User")}  </h2>
           <div id='refistration-form' className={`  px-[1px] w-3/5  `}>
-            <form onSubmit={id ? (updateUser) : (handleSubmit)}  className='flex flex-col ' >
+            <form onSubmit={id ? (updateUser) : (handleSubmit)} className='flex flex-col ' >
               <p className='mb-[16px]'>
                 <label htmlFor="name" className='text-[14px] mb-[5px]'>
                   Username <span className="required" aria-hidden="true">*</span>
@@ -365,3 +325,7 @@ function UserLogin() {
 
 
 export default UserLogin;
+
+
+
+

@@ -1,18 +1,38 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { thunk } from 'redux-thunk';
-import { composeWithDevTools } from 'redux-devtools-extension';
+import { composeWithDevTools } from '@redux-devtools/extension';
 import {
   usersReducer,
   loginAdminReducer,
   deleteReducer,
-  logoutAdmin
+  logoutAdmin,
+  newUserReducer,
+  imageuserReducer ,
+  userDetailsReducer
 } from './Reducers/userReducers';
+import {
+  categoryReducer,
+  newcategoryReducer,
+  deletecategoryReducer,
+  imagecategoryReducer,
+  // updatecategoryReducer,
+  categoryDetailsReducer
+} from './Reducers/categoriyReducer';
 
 const reducer = combineReducers({
   userList: usersReducer,
   loginAdmin: loginAdminReducer,
   logoutAdmin: logoutAdmin,
   deleteUser: deleteReducer,
+  newUser: newUserReducer,
+  categoryList: categoryReducer,
+  imageCategory: imagecategoryReducer, 
+  newCategory: newcategoryReducer,    
+  deleteCategory: deletecategoryReducer   ,
+ imageUser: imageuserReducer ,
+ userDetail:userDetailsReducer,
+ categoryDetail:categoryDetailsReducer,
+//  updatecategory: updatecategoryReducer
 });
 
 // Optional: You can remove `initialState` if each reducer defines its own default state

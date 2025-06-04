@@ -12,10 +12,17 @@ import {
   NEW_USER_SUCCESS,
   NEW_USER_FAIL,
   NEW_USER_RESET,
+   IMAGE_REQUEST,
+  IMAGE_SUCCESS,
+  IMAGE_FAIL,
+  IMAGE_RESET,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
-  LOGOUT
+  LOGOUT,
+   USER_DETAILS_REQUEST,
+  USER_DETAILS_SUCCESS,
+  USER_DETAILS_FAIL
 } from "../Constants/userConstants";
 
 const userFromStorage = localStorage.getItem("userInfo")
@@ -24,7 +31,7 @@ const userFromStorage = localStorage.getItem("userInfo")
 
   const initialLoginState = {
   isLoggedIn: !!userFromStorage,
-  user: userFromStorage,
+  user: null,
   loading: false,
   error: null,
 };
@@ -32,6 +39,7 @@ const userFromStorage = localStorage.getItem("userInfo")
 // Get All Users Reducer
 export const usersReducer = (state = { users: [] }, action) => {
   switch (action.type) {
+    
     case ALL_USERS_REQUEST:
       return {
         loading: true,
@@ -40,10 +48,8 @@ export const usersReducer = (state = { users: [] }, action) => {
     case ALL_USERS_SUCCESS:
       return {
         loading: false,
-        users: action.payload.users,
-        userCount: action.payload.userCount,
-        resultPerPage: action.payload.resultPerPage,
-        filteredUsersCount: action.payload.filteredUsersCount,
+      
+        users: action.payload,
       };
     case ALL_USERS_FAIL:
       return {
@@ -153,4 +159,52 @@ export const loginAdminReducer = (state = initialLoginState, action) => {
 export const logoutAdmin = () => (dispatch) => {
   localStorage.removeItem("userInfo");
   dispatch({ type: LOGOUT });
+};
+
+
+export const imageuserReducer = (state = initialLoginState, action) => {
+  switch (action.type) {
+    case IMAGE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case IMAGE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+       image: action.payload,
+      };
+    case IMAGE_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case IMAGE_RESET:
+      return {
+        ...state,
+        isDeleted: false,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
+
+export const userDetailsReducer = (state = initialLoginState, action) => {
+  switch (action.type) {
+    case USER_DETAILS_REQUEST:
+      return { ...state, loading: true, error: null };
+    case USER_DETAILS_SUCCESS:
+      return { loading: false, user: action.payload, error: null };
+    case USER_DETAILS_FAIL:
+      return { loading: false, user: null, error: action.payload };
+    default:
+      return state;
+  }
 };

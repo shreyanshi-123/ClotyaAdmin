@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import { createcategory, imageUpload, getCategoryById, updatecategory } from '../../../Actions/categoryAction';
 
 const baseUrl =
   window.location.hostname === 'localhost'
@@ -8,6 +10,7 @@ const baseUrl =
 
 const AddOrEditCategory = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { id } = useParams();
 
   // formData holds category name and image path (string or file)
@@ -19,39 +22,65 @@ const AddOrEditCategory = () => {
   const [selectedImage, setSelectedImage] = useState(null); // for new uploaded image (File object)
   const [preview, setPreview] = useState(null); // preview URL for image preview
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
-
+  const { category } = useSelector(state => state.categoryDetail);
+  const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+  const { categories = [], loading, error } = useSelector(state => state.categoryList);
+  const { image } = useSelector(state => state.imageCategory);
+  console.log(category)
   // Fetch category if editing (id present)
+  // useEffect(() => {
+  //   if (!id) return;
+
+  //   const fetchCategory = async () => {
+  //     // setLoading(true);
+  //     try {
+  //       const res = await fetch(`${baseUrl}/api/get-category/${id}`);
+  //       if (!res.ok) throw new Error('Failed to fetch category');
+  //       const data = await res.json();
+
+  //       setFormData({
+  //         category: data.category || '',
+  //         image: data.image || '',
+  //       });
+
+  //       if (data.image) {
+  //         setPreview(`${baseUrl}${data.image}`);
+  //       }
+  //       // setError('');
+  //     } catch (err) {
+  //       // setError(err.message);
+  //     } finally {
+  //       // setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCategory();
+  // }, [id]);
+  useEffect(() => {
+    if (id) {
+      dispatch(getCategoryById(id));
+    }
+  }, [dispatch, id]);
+
   useEffect(() => {
     if (!id) return;
 
-    const fetchCategory = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${baseUrl}/api/get-category/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch category');
-        const data = await res.json();
 
-        setFormData({
-          category: data.category || '',
-          image: data.image || '',
-        });
+    setFormData({
+      category: category && category.category || '',
+      image: category.image || '',
+    });
 
-        if (data.image) {
-          setPreview(`${baseUrl}${data.image}`);
-        }
-        setError('');
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  }, [category]);
+  useEffect(() => {
+  return () => {
+    if (preview) URL.revokeObjectURL(preview);
+  }
+}, [preview]);
 
-    fetchCategory();
-  }, [id]);
 
   // When user selects a new file, update selectedImage and preview
   const handleFileChange = (e) => {
@@ -71,24 +100,22 @@ const AddOrEditCategory = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Upload image helper function, returns uploaded image path string
   const uploadImage = async () => {
-    if (!selectedImage) return formData.image || ''; // return existing if no new file
+    if (!selectedImage) return formData.image || '';
 
     const data = new FormData();
     data.append('image', selectedImage);
 
-    const res = await fetch(`${baseUrl}/api/CategoryImage`, {
-      method: 'POST',
-      body: data,
-    });
-
-    const json = await res.json();
-    if (res.ok) return json.filePath;
-    else throw new Error(json.msg || 'Image upload failed');
+    try {
+      const response = await dispatch(imageUpload(data));
+      // Assuming your backend returns { filePath: '...' }
+      return response.filePath || response.imagePath || formData.image || '';
+    } catch (error) {
+      alert('Image upload failed: ' + error.message);
+      return '';
+    }
   };
 
-  // Submit handler for Add
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -97,32 +124,19 @@ const AddOrEditCategory = () => {
       return;
     }
 
-    setLoading(true);
-    setError('');
-    setFormSuccess('');
+    let imagePath = formData.image;
 
-    try {
-      const imagePath = await uploadImage();
-
-      const response = await fetch(`${baseUrl}/api/addCategory`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: formData.category, image: imagePath }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Failed to add category');
-      }
-
-      setFormSuccess('Category added successfully');
-      navigate('/categories');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (selectedImage) {
+      imagePath = await uploadImage();
+      alert(imagePath); // Remove alert when ready
     }
+
+    const newcategoryData = { ...formData, image: imagePath };
+
+    await dispatch(createcategory(newcategoryData));
+    navigate('/categories');
   };
+
 
   // Submit handler for Update
   const updateCategory = async (e) => {
@@ -138,30 +152,35 @@ const AddOrEditCategory = () => {
       return;
     }
 
-    setLoading(true);
-    setError('');
-    setFormSuccess('');
 
     try {
-      const imagePath = await uploadImage();
-
-      const response = await fetch(`${baseUrl}/api/update-category/${id}`, {
-        method: 'POST', // or PUT if your backend expects that
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: formData.category, image: imagePath }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Failed to update category');
+      let imagePath = formData.image;
+      if (selectedImage) {
+        imagePath = await uploadImage();
+        alert(imagePath);
+        setFormData(prev => ({ ...prev, image: imagePath }));
       }
+
+
+      const categoryData = {
+        _id: id,
+        category: formData.category,
+        image: imagePath,
+      };
+
+      const updatedUser = await dispatch(updatecategory(id, categoryData));
+      alert(updatedUser)
+      // if (!response.ok) {
+      //   const errorText = await response.text();
+      //   throw new Error(errorText || 'Failed to update category');
+      // }
 
       setFormSuccess('Category updated successfully');
       navigate('/categories');
     } catch (err) {
-      setError(err.message);
+      // setError(err.message);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

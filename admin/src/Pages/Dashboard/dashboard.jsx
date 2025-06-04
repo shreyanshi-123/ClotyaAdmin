@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 function AdminDashboard() {
+  // alert('ffffff')
   const navigate = useNavigate();
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
-
+// alert(isLoggedIn)
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
@@ -17,7 +18,7 @@ function AdminDashboard() {
   }
 
   return (
-    <main className="w-full min-h-screen bg-gray-50 p-8">
+    <main className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-6">
       <h1 className="text-3xl font-semibold mb-4">Admin Dashboard</h1>
       <div className="bg-white p-6 rounded-lg shadow-md">
         <p className="text-gray-700">Welcome, Admin! Here's an overview of your system.</p>

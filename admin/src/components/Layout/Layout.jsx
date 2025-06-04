@@ -9,9 +9,9 @@ const Layout = () => {
   return (
     <div className="dashboard-layout">
       {isLoggedIn && <Sidebar />}
-      <main className="main-content">
+     
         <Outlet />
-      </main>
+      
     </div>
   );
 };

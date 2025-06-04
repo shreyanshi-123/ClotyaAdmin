@@ -17,8 +17,11 @@ function UserList() {
     : process.env.REACT_APP_API_URL;
 
   const dispatch = useDispatch();
+  
+  const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+  // alert(isLoggedIn)
   const { users = [], loading, error } = useSelector(state => state.userList);
-
+  console.log('users',users)
   const filteredUsers = users
     .filter(user => user.role === 'user')
     .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -52,7 +55,7 @@ function UserList() {
             <h2 className='text-2xl font-semibold capitalize flex items-center gap-2'>
               Users <FontAwesomeIcon icon={faUserAlt} className="text-[#209569]" />
             </h2>
-            <Link to="/AddUser">
+            <Link to="/add-user">
               <button className='hover:text-[#209569] hover:bg-[#e6f4f1] px-5 py-2 text-white bg-[#209569] font-semibold rounded-md transition duration-300 shadow-md hover:shadow-lg'>
                 Add User
               </button>
@@ -117,7 +120,7 @@ function UserList() {
                       </td>
                       <td className="px-6 py-4">
                         <div className='flex gap-3 justify-center'>
-                          <Link to={`/addUser/${user._id}`}>
+                          <Link to={`/add-user/${user._id}`}>
                             <button
                               className='bg-blue-100 hover:bg-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition'
                               title="Edit User"

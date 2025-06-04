@@ -15,80 +15,24 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public route - login */}
         <Route path="/" element={<AdminLogin />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <AdminDashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute redirectPath="/"><Layout /></ProtectedRoute>}>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/add-category" element={<AddOrEditCategory />} />
+          <Route path="/edit-category/:id" element={<AddOrEditCategory />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/add-user" element={<AddUser />} />
+          <Route path="/add-user/:id" element={<AddUser />} />
+           {/* <Route path="/products" element={<Products />} /> */}
+           <Route path="*" element={<PageNotFound />} />
+        </Route>
 
-        <Route
-          path="/categories"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <Categories />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/add-category"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <AddOrEditCategory />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/edit-category/:id"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <AddOrEditCategory />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/users"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <Users />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/AddUser/:id?"
-          element={
-            <ProtectedRoute redirectPath="/">
-              <Layout>
-                <AddUser />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* 404 Fallback */}
-        <Route path="*" element={<PageNotFound />} />
+       
       </Routes>
     </BrowserRouter>
+
   );
 }
 

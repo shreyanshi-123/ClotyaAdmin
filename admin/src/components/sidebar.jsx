@@ -27,7 +27,7 @@ const Sidebar = () => {
     <aside className="sidebar fixed left-0 top-0 z-20 h-full w-full max-w-xs bg-gray-900 text-white shadow-lg border-r border-gray-700 lg:w-1/4 xl:w-1/5">
       <div className="flex items-center justify-center py-6 px-4 border-b border-gray-800">
         <NavLink to="/dashboard" className="h-20 w-4/5">
-          <img src={Logo} alt="Admin Dashboard Logo" className="h-full w-full object-contain" />
+          <img src={Logo} alt="Admin Dashboard Logo" className="h-[80px] w-full object-contain" />
         </NavLink>
       </div>
 

@@ -2,9 +2,9 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children  }) => {
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
-
+  
   if (!isLoggedIn) {
     // If not logged in, redirect to login page
     return <Navigate to="/" replace />;

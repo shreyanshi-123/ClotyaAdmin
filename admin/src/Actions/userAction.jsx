@@ -2,6 +2,9 @@ import {
   ALL_USERS_FAIL,
   ALL_USERS_SUCCESS,
   ALL_USERS_REQUEST,
+  IMAGE_FAIL,
+  IMAGE_SUCCESS,
+  IMAGE_REQUEST,
   NEW_USER_SUCCESS,
   NEW_USER_FAIL,
   NEW_USER_REQUEST,
@@ -16,6 +19,9 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
   LOGOUT,
+  USER_DETAILS_REQUEST,
+  USER_DETAILS_SUCCESS,
+  USER_DETAILS_FAIL
 } from "../Constants/userConstants";
 
 import axios from "axios";
@@ -46,6 +52,7 @@ export const getUsers = () => async (dispatch) => {
 
 // Create New User (Admin)
 export const createUsers = (userData) => async (dispatch) => {
+ 
   try {
     dispatch({ type: NEW_USER_REQUEST });
 
@@ -69,6 +76,7 @@ export const createUsers = (userData) => async (dispatch) => {
 
 // Update User (Admin)
 export const updateUsers = (id, userData) => async (dispatch) => {
+  // alert("userData",userData)
   try {
     dispatch({ type: UPDATE_USER_REQUEST });
 
@@ -76,7 +84,7 @@ export const updateUsers = (id, userData) => async (dispatch) => {
       headers: { "Content-Type": "application/json" }
     };
 
-    const { data } = await axios.put(`${baseUrl}/api/editUser/${id}`, userData, config);
+    const { data } = await axios.post(`${baseUrl}/api/editUser/${id}`, userData, config);
 
     dispatch({
       type: UPDATE_USER_SUCCESS,
@@ -143,7 +151,68 @@ export const logout = () => (dispatch) => {
   dispatch({ type: LOGOUT });
 };
 
+// image upload
+
+export const imageUpload = (formData) => async (dispatch) => {
+  // alert(JSON.stringify(formData)); 
+  
+  try {
+    dispatch({ type: IMAGE_REQUEST });
+
+   
+    const config = {
+      headers: { 
+        // "Content-Type": "multipart/form-data" // Axios sets this automatically if omitted
+      }
+    };
+
+    const { data } = await axios.post(`${baseUrl}/api/upload`, formData, config);
+
+    dispatch({
+      type: IMAGE_SUCCESS,
+      payload: data, 
+    });
+
+    return data; 
+  } catch (error) {
+    dispatch({
+      type: IMAGE_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error; 
+  }
+};
+
+
+
 // Clear Errors
 export const clearErrors = () => (dispatch) => {
   dispatch({ type: CLEAR_ERRORS });
+};
+
+
+// userActions.js
+// import axios from 'axios';
+// import {
+ 
+// } from '../Constants/userConstants';
+
+
+
+export const getUserById = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: USER_DETAILS_REQUEST });
+
+    const { data } = await axios.get(`${baseUrl}/api/get-user/${id}`);
+
+    dispatch({
+      type: USER_DETAILS_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({
+      type: USER_DETAILS_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
 };
