@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faBarsProgress, faShapes, faPrint, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faBarsProgress, faShapes, faPrint, faArrowRightFromBracket, faHatCowboy, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from '../Actions/userAction';
@@ -17,10 +17,10 @@ const Sidebar = () => {
   }
 
   const menuItems = [
-    { path: "/dashboard", icon: faBarsProgress, label: "Dashboard" },
+    { path: "/dashboard", icon: faChartLine, label: "Dashboard" },
     { path: "/users", icon: faUsers, label: "Users" },
     { path: "/categories", icon: faShapes, label: "Categories" },
-    { path: "/products", icon: faPrint, label: "Products" },
+    { path: "/products", icon: faHatCowboy, label: "Products" },
   ];
 
   return (
@@ -44,10 +44,9 @@ const Sidebar = () => {
             key={path}
             to={path}
             className={({ isActive }) =>
-              `flex items-center gap-4 w-full rounded-md px-4 py-3 text-sm font-medium transition ${
-                isActive
-                  ? 'bg-green-600 border-l-4 border-green-400 text-white shadow-md'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              `flex items-center gap-4 w-full  px-4 py-3 text-sm font-medium transition ${isActive
+                ? 'bg-primary-red  border-primary-red text-white '
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`
             }
           >
@@ -58,7 +57,7 @@ const Sidebar = () => {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-4 w-full rounded-md px-4 py-3 mt-4 text-sm font-medium text-red-400 hover:bg-red-700 hover:text-red-100 transition"
+          className="flex items-center gap-4 w-full rounded-xl px-4 py-3 mt-4 text-sm font-medium text-red-400 hover:bg-red-700 hover:text-red-100 transition"
           title="Logout"
           type="button"
         >

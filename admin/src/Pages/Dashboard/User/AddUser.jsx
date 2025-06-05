@@ -2,39 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from "react-redux";
-import { createUsers,imageUpload,updateUsers,getUserById } from '../../../Actions/userAction'
+import { createUsers, imageUpload, updateUsers, getUserById } from '../../../Actions/userAction'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage } from '@fortawesome/free-solid-svg-icons';
 
 import './user.css'
 
-function UserLogin() {
-  // Register
+function AddOrEditUser() {
 
-
-  const [editingUser, setEditingUser] = useState(null); 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
- 
-  const [activeTab, setActiveTab] = useState('login');
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', image: '', role: 'user' });
-
-  const [email, setEmail] = useState('');
   const [formSuccess, setFormSuccess] = useState("");
-  const navigate = useNavigate();
-
   const [selectedImage, setSelectedImage] = useState(null);
   const [file, setFile] = useState();
+  const [preview, setPreview] = useState(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
-   const { users = [], loading, error } = useSelector(state => state.newUser);
-     const { user,  } = useSelector(state => state.userDetail);
+  const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+  const { users = [], loading, error } = useSelector(state => state.newUser);
+  const { user, } = useSelector(state => state.userDetail);
   const { image } = useSelector(state => state.imageUser);
-  console.log(image)
-
+  // alert(JSON.stringify(user))
+  const { id } = useParams();
 
   const baseUrl = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000'  
+    ? 'http://localhost:5000'
     : process.env.REACT_APP_API_URL;
+  const imageUrl = user?.image ? `${baseUrl}${user.image}` : null;
+
+
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -56,96 +54,103 @@ const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
 
   };
 
-  const { id } = useParams();
- 
+
   useEffect(() => {
     if (id) {
+
       dispatch(getUserById(id));
+
     }
   }, [dispatch, id]);
 
   useEffect(() => {
     if (!id) return;
-    
-    
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        role: user.role || '',
-        image: user.image || '',
-      });
-    
-  }, [user]);
+
+    setFormData({
+      name: user?.name || '',
+      email: user?.email || '',
+      role: user?.role || '',
+      image: user?.image || '',
+    });
 
 
 
-
-
-const uploadImage = async () => {
-  if (!selectedImage) return formData.image || '';
-
-  const data = new FormData();
-  data.append('image', selectedImage);
-
-  try {
-    const response = await dispatch(imageUpload(data));
-    // Assuming your backend returns { filePath: '...' }
-    return response.filePath || response.imagePath || formData.image || '';
-  } catch (error) {
-    alert('Image upload failed: ' + error.message);
-    return '';
-  }
-};
-
- 
-
-const updateUser = async (e) => {
-  e.preventDefault();
-  if (!id) {
-    alert("No user is being edited.");
-    return;
-  }
-
-  try {
-    let imagePath = formData.image;
-
-    if (selectedImage) {
-      imagePath = await uploadImage(); // Upload image and get new path
-      // Optionally update formData.image here too:
-      setFormData(prev => ({ ...prev, image: imagePath }));
+    if (user?.image) {
+      setPreview(`${baseUrl}${user.image}`);
+    } else {
+      setPreview(null);
     }
 
-    // Prepare the updated user data to send
-    const userData = {
-      _id: id,
-      name: formData.name,
-      email: formData.email,
-      role: formData.role,
-      image: imagePath,
-    };
+  }, [user, id]);
 
-    if (formData.password) {
-      userData.password = formData.password; // Only include password if entered
+
+  useEffect(() => {
+    return () => {
+      if (!id) return;
+      if (preview) URL.revokeObjectURL(preview);
     }
-     alert(JSON.stringify(userData))
-    // Dispatch updateUsers with the updated data
-    const updatedUser = await dispatch(updateUsers(id, userData));
+  }, [preview]);
 
- 
-    // Update local user list with the updated user info
-    // setUsers((prevUsers) =>
-    //   prevUsers.map((user) => (user._id === updatedUser._id ? updatedUser : user))
-    // );
-navigate('/users')
-    // Reset form and UI states
-    setEditingUser(null);
-    setSelectedImage(null);
-    setPreview(null);
-    setFormSuccess('User updated successfully');
-  } catch (err) {
-    // Handle error (e.g., setError(err.message))
-  }
-};
+
+
+  const uploadImage = async () => {
+    if (!selectedImage) return formData.image || '';
+
+    const data = new FormData();
+    data.append('image', selectedImage);
+
+    try {
+      const response = await dispatch(imageUpload(data));
+      return response.filePath || response.imagePath || formData.image || '';
+    } catch (error) {
+      alert('Image upload failed: ' + error.message);
+      return '';
+    }
+  };
+
+
+
+
+  const updateUser = async (e) => {
+    e.preventDefault();
+    if (!id) {
+      alert("No user is being edited.");
+      return;
+    }
+
+    try {
+      let imagePath = formData.image;
+
+      if (selectedImage) {
+        imagePath = await uploadImage();
+      }
+
+
+      const userData = {
+        _id: id,
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        image: imagePath,
+      };
+
+      if (formData.password) {
+        userData.password = formData.password;
+      }
+
+
+      const updatedUser = await dispatch(updateUsers(id, userData));
+
+      navigate('/users')
+
+      setEditingUser(null);
+      setSelectedImage(null);
+      setPreview(null);
+      setFormSuccess('User updated successfully');
+    } catch (err) {
+
+    }
+  };
 
 
 
@@ -174,9 +179,9 @@ navigate('/users')
 
 
 
- 
 
-  const [preview, setPreview] = useState(null);
+
+
 
 
 
@@ -269,22 +274,30 @@ navigate('/users')
                 </select>
 
               </p>
-              <p className=' flex gap-[16px] flex-col'>
-                <label className=" font-medium border-[#ddd] text-center cursor-pointer text-black w-max py-2 px-5 shadow hover:shadow-lg false mb-[5px] ">
-                  <input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    disabled=""
-                  />
-                  Choose File
-
-                </label>
-
-                <img src={preview} width={100} />
-              </p>
+              <div className="my-[16px] flex flex-col ">
+                        <div className="w-full border border-gray-300 border-b-0  px-3 py-2 flex items-center justify-center h-[140px] p-4">
+                       {preview ? (
+                        
+                         <img
+                           src={preview}
+                           alt="Category Preview"
+                           width={100}
+                           className="mt-[16px] rounded"
+                         />
+                        
+                       ):(<FontAwesomeIcon icon={faImage} />)}
+                        </div>
+                       <label className=" font-medium border border-[#ddd] text-center cursor-pointer text-black  py-2 px-5  hover: false mb-[5px] img-box w-ful bg-gray-200 hover:bg-gray-600 hover:text-white">User Image
+                       <input
+                         type="file"
+                         name="image"
+                         accept="image/*"
+                         onChange={handleFileChange}
+                         className="hidden"
+                         disabled={loading}
+                       /></label>
+                       
+                     </div>
               <button
                 type="submit"
                 className='w-fit hover:opacity-[0.8] border border-[#ee403d] mt-[16px] text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px] register-btn'
@@ -324,7 +337,7 @@ navigate('/users')
 }
 
 
-export default UserLogin;
+export default AddOrEditUser;
 
 
 

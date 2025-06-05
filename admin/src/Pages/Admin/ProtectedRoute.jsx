@@ -4,8 +4,9 @@ import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({ children  }) => {
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+  const storedValue = localStorage.getItem('user');
   
-  if (!isLoggedIn) {
+  if (!storedValue) {
     // If not logged in, redirect to login page
     return <Navigate to="/" replace />;
   }

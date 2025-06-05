@@ -18,7 +18,7 @@ function UserLogin() {
   const dispatch = useDispatch();
 
   const { loading, error, isLoggedIn } = useSelector(state => state.loginAdmin);
-
+ const storedValue = localStorage.getItem('user');
   const handleTabClick = (tab) => (e) => {
     e.preventDefault();
     setActiveTab(tab);
@@ -30,11 +30,11 @@ function UserLogin() {
   };
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (storedValue) {
       setFormSuccess("Login successful. Redirecting...");
-      setTimeout(() => navigate('/dashboard'), 1000); // smoother transition
+    navigate('/dashboard')
     }
-  }, [isLoggedIn, navigate]);
+  }, [storedValue, navigate]);
 
   return (
     <div className='max-w-7xl m-auto h-screen'>

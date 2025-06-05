@@ -5,10 +5,11 @@ import { useSelector } from 'react-redux';
 
 const Layout = () => {
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
+const storedValue = localStorage.getItem('user');
 
   return (
     <div className="dashboard-layout">
-      {isLoggedIn && <Sidebar />}
+      {storedValue && <Sidebar />}
      
         <Outlet />
       

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { createcategory, imageUpload, getCategoryById, updatecategory } from '../../../Actions/categoryAction';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage } from '@fortawesome/free-solid-svg-icons';
 
 const baseUrl =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
     : process.env.REACT_APP_API_URL;
+    // const imageUrl = categories.image ? `${baseUrl}${categories.image}` : null;
 
 const AddOrEditCategory = () => {
   const navigate = useNavigate();
@@ -30,35 +33,7 @@ const AddOrEditCategory = () => {
   const { categories = [], loading, error } = useSelector(state => state.categoryList);
   const { image } = useSelector(state => state.imageCategory);
   console.log(category)
-  // Fetch category if editing (id present)
-  // useEffect(() => {
-  //   if (!id) return;
-
-  //   const fetchCategory = async () => {
-  //     // setLoading(true);
-  //     try {
-  //       const res = await fetch(`${baseUrl}/api/get-category/${id}`);
-  //       if (!res.ok) throw new Error('Failed to fetch category');
-  //       const data = await res.json();
-
-  //       setFormData({
-  //         category: data.category || '',
-  //         image: data.image || '',
-  //       });
-
-  //       if (data.image) {
-  //         setPreview(`${baseUrl}${data.image}`);
-  //       }
-  //       // setError('');
-  //     } catch (err) {
-  //       // setError(err.message);
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
-
-  //   fetchCategory();
-  // }, [id]);
+ 
   useEffect(() => {
     if (id) {
       dispatch(getCategoryById(id));
@@ -71,12 +46,19 @@ const AddOrEditCategory = () => {
 
     setFormData({
       category: category && category.category || '',
-      image: category.image || '',
+      image: category && category.image || '',
     });
+
+    if (category && category.image) {
+    setPreview(`${baseUrl}${category.image}`);
+  } else {
+    setPreview(null);
+  }
 
   }, [category]);
   useEffect(() => {
   return () => {
+     if (!id) return;
     if (preview) URL.revokeObjectURL(preview);
   }
 }, [preview]);
@@ -128,7 +110,7 @@ const AddOrEditCategory = () => {
 
     if (selectedImage) {
       imagePath = await uploadImage();
-      alert(imagePath); // Remove alert when ready
+      // alert(imagePath); // Remove alert when ready
     }
 
     const newcategoryData = { ...formData, image: imagePath };
@@ -157,7 +139,7 @@ const AddOrEditCategory = () => {
       let imagePath = formData.image;
       if (selectedImage) {
         imagePath = await uploadImage();
-        alert(imagePath);
+        // alert(imagePath);
         setFormData(prev => ({ ...prev, image: imagePath }));
       }
 
@@ -169,7 +151,7 @@ const AddOrEditCategory = () => {
       };
 
       const updatedUser = await dispatch(updatecategory(id, categoryData));
-      alert(updatedUser)
+      // alert(updatedUser)
       // if (!response.ok) {
       //   const errorText = await response.text();
       //   throw new Error(errorText || 'Failed to update category');
@@ -185,16 +167,19 @@ const AddOrEditCategory = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">{id ? 'Edit Category' : 'Add Category'}</h2>
+    <div className="flex min-h-screen sm:min-w-full">
+      <div className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen ">
+      <div className="flex flex-col gap-6  sm:p-10 pb-6 overflow-hidden ">
+      <h2 className="border-b pb-3 border-gray-300 text-xl font-semibold capitalize flex items-center ">{id ? 'Edit Category' : 'Add Category'}</h2>
       {error && <p className="text-red-500 mb-2">{error}</p>}
       {formSuccess && <p className="text-green-500 mb-2">{formSuccess}</p>}
 
       <form
         onSubmit={id ? updateCategory : handleSubmit}
         encType="multipart/form-data"
+        className='  px-[1px] w-3/5  '
       >
-        <div className="mb-4">
+        <div className="mb-[16px]">
           <label className="block mb-1 font-medium">Category Name</label>
           <input
             type="text"
@@ -202,39 +187,46 @@ const AddOrEditCategory = () => {
             value={formData.category}
             onChange={handleInputChange}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full  border border-gray-300 rounded px-3 py-2"
             disabled={loading}
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Category Image</label>
+        <div className="my-[16px] flex flex-col ">
+           <div className="w-full border rounded border-gray-300 border-b-0  px-3 py-2 flex items-center justify-center h-[140px] p-4">
+          {preview ? (
+           
+            <img
+              src={preview}
+              alt="Category Preview"
+              width={100}
+              className="mt-[16px] rounded"
+            />
+           
+          ):(<FontAwesomeIcon icon={faImage} />)}
+           </div>
+          <label className=" font-medium border border-[#ddd] rounded rounded-t-0 text-center cursor-pointer text-black  py-2 px-5 bg-gray-50 hover: false mb-[5px] img-box w-full bg-gray-200 hover:bg-gray-600 hover:text-white">Category Image
           <input
             type="file"
             name="image"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full"
+            className="hidden"
             disabled={loading}
-          />
-          {preview && (
-            <img
-              src={preview}
-              alt="Category Preview"
-              width={100}
-              className="mt-2 rounded"
-            />
-          )}
+          /></label>
+          
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded disabled:opacity-50"
+          className="w-fit hover:opacity-[0.8] border border-[#ee403d] mt-[16px] text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px] register-btn"
         >
           {loading ? (id ? 'Updating...' : 'Adding...') : id ? 'Update Category' : 'Add Category'}
         </button>
       </form>
+    </div>
+    </div>
     </div>
   );
 };

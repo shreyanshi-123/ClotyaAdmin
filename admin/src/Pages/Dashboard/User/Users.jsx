@@ -47,24 +47,24 @@ function UserList() {
   };
 
   return (
-    <div className='flex min-h-screen sm:min-w-full bg-gray-100'>
-      <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-6'>
+    <div className='flex min-h-screen sm:min-w-full '>
+      <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen '>
         <div className='flex flex-col gap-6 p-6 sm:p-10 pb-6 overflow-hidden bg-white '>
           {error && <p className="text-red-600 font-semibold">{error}</p>}
-          <div className='border-b pb-5 border-gray-300 flex justify-between items-center'>
-            <h2 className='text-2xl font-semibold capitalize flex items-center gap-2'>
-              Users <FontAwesomeIcon icon={faUserAlt} className="text-[#209569]" />
+          <div className='border-b pb-[12px] border-gray-300 flex justify-between items-center'>
+            <h2 className='text-xl font-semibold capitalize flex items-center'>
+              Users 
             </h2>
             <Link to="/add-user">
-              <button className='hover:text-[#209569] hover:bg-[#e6f4f1] px-5 py-2 text-white bg-[#209569] font-semibold rounded-md transition duration-300 shadow-md hover:shadow-lg'>
+              <button className='w-fit hover:opacity-[0.8] border border-[#ee403d]  text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px]'>
                 Add User
               </button>
             </Link>
           </div>
 
-          <div className='border-gray-300 w-full overflow-x-auto'>
+          <div className='border border-gray-300 w-full overflow-x-auto h-full'>
             <Table className='w-full text-[15px] text-left text-gray-700 dark:text-gray-400'>
-              <thead className='text-[18px] text-gray-700 bg-gray-50'>
+              <thead className='text-[16px] text-gray-700 bg-gray-50'>
                 <tr>
                   <th scope="col" className="px-6 py-3">S. No.</th>
                   <th scope="col" className="px-6 py-3">Name</th>
@@ -91,34 +91,35 @@ function UserList() {
                   currentUsers.map((user, index) => (
                     <tr
                       key={user._id}
-                      className='text-black bg-white border-b border-gray-200 hover:bg-[#f0fdf9] transition-colors duration-200'
+                      className='text-black bg-white border-b border-gray-200 hover:shadow-lg hover:bg-[#ff00000a] transition-colors duration-200'
                     >
-                      <td className="px-6 py-4 capitalize font-semibold">{indexOfFirstUser + index + 1}</td>
-                      <td className="px-6 py-4 capitalize">
+                      <td className="px-6 py-2 capitalize font-semibold">{indexOfFirstUser + index + 1}</td>
+                      <td className="px-6 py-2 capitalize">
                         <div className='flex gap-3 items-center'>
-                          <div className="profile w-12 h-12 rounded-full bg-[#20956933] flex items-center justify-center overflow-hidden border-0 border-[#209569]">
+
+                          <div className="profile w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-red-100">
                             {user.image ? (
                               <img src={`${baseUrl}${user.image}`} alt="User profile" className='w-full h-full object-cover' />
                             ) : (
-                              <FontAwesomeIcon icon={faUserAlt} className="text-[#209569] text-[22px]" />
+                              <FontAwesomeIcon icon={faUserAlt} className="text-primary-red text-[15px]" />
                             )}
                           </div>
                           <span className='font-semibold text-gray-800'>{user.name}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">{user.email}</td>
-                      <td className="px-6 py-4 capitalize">
+                      <td className="px-6 py-2 text-gray-600">{user.email}</td>
+                      <td className="px-6 py-2 capitalize">
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-sm font-semibold
-                          ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
+                          ${user.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}
                         >
                           {user.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 font-mono">
+                      <td className="px-6 py-2 text-gray-500 font-mono">
                         {user.date ? new Date(user.date).toLocaleDateString() : ''}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-2">
                         <div className='flex gap-3 justify-center'>
                           <Link to={`/add-user/${user._id}`}>
                             <button

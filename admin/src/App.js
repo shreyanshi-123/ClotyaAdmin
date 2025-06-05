@@ -18,13 +18,13 @@ function App() {
         <Route path="/" element={<AdminLogin />} />
 
         <Route element={<ProtectedRoute redirectPath="/"><Layout /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<AdminDashboard />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/add-category" element={<AddOrEditCategory />} />
-          <Route path="/edit-category/:id" element={<AddOrEditCategory />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/add-user" element={<AddUser />} />
-          <Route path="/add-user/:id" element={<AddUser />} />
+          <Route path="/dashboard" element={<ProtectedRoute redirectPath="/"><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/categories" element={<ProtectedRoute redirectPath="/"><Categories /></ProtectedRoute>} />
+          <Route path="/add-category" element={<ProtectedRoute redirectPath="/"><AddOrEditCategory /></ProtectedRoute>} />
+          <Route path="/edit-category/:id" element={<ProtectedRoute redirectPath="/"><AddOrEditCategory /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute redirectPath="/"><Users /></ProtectedRoute>} />
+          <Route path="/add-user" element={<ProtectedRoute redirectPath="/"><AddUser /></ProtectedRoute>} />
+          <Route path="/add-user/:id" element={<ProtectedRoute redirectPath="/"><AddUser /></ProtectedRoute>} />
            {/* <Route path="/products" element={<Products />} /> */}
            <Route path="*" element={<PageNotFound />} />
         </Route>

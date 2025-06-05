@@ -5,6 +5,7 @@ import { getcategory, clearErrors,deletecategory } from "../../../Actions/catego
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+import  './category.css'
 
 function CategoryList() {
   // const [error, setError] = useState('');
@@ -60,26 +61,26 @@ function CategoryList() {
   const currentCategories = categories.slice(indexOfFirst, indexOfLast);
 
   return (
-    <div className='flex min-h-screen sm:min-w-full bg-gray-50'>
-      <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-6'>
-        <div className='flex flex-col gap-6 bg-white rounded-lg shadow-lg p-6'>
+    <div className='flex min-h-screen sm:min-w-full '>
+      <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen '>
+        <div className='flex flex-col gap-6 bg-white  p-10'>
           {error && <p className="text-red-600 font-semibold">{error}</p>}
-          {loading && <p className="text-gray-600 font-medium">Loading categories...</p>}
+          {/* {loading && <p className="text-gray-600 font-medium">Loading categories...</p>} */}
 
-          <div className='border-b border-gray-300 pb-4 flex justify-between items-center'>
-            <h2 className='text-2xl font-semibold text-gray-800 tracking-wide'>Categories</h2>
+          <div className='border-b border-gray-300  pb-[12px] flex justify-between items-center'>
+            <h2 className='  text-xl font-semibold capitalize flex items-center '>Categories</h2>
             <Link to='/add-category'>
               <button
-                className='bg-green-600 text-white px-5 py-2 rounded-md font-semibold shadow hover:bg-green-700 transition duration-300'
+                className='w-fit hover:opacity-[0.8] border border-[#ee403d]  text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px]'
               >
                 Add Category
               </button>
             </Link>
           </div>
 
-          <div className='overflow-x-auto'>
+          <div className='border border-gray-300 overflow-x-auto'>
             <Table className='w-full text-sm text-gray-700'>
-              <thead className='text-[18px] text-gray-700 bg-gray-50'>
+              <thead className='text-[16px] text-gray-700 bg-gray-50'>
                 <tr>
                   <th scope="col" className="px-6 py-3 text-center">S. No.</th>
                   <th scope="col" className="px-6 py-3 text-center">Category Image</th>
@@ -88,16 +89,25 @@ function CategoryList() {
                 </tr>
               </thead>
               <tbody>
-                {currentCategories.map((category, index) => (
+                {
+                 loading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10 text-gray-500 font-medium">
+                      Loading categories...
+                    </td>
+                  </tr>
+                ):(
+                
+                currentCategories.map((category, index) => (
                   <tr
                     key={category._id || index}
-                    className='bg-white hover:bg-green-50 transition-colors border-b border-gray-200 cursor-pointer'
+                    className='bg-white hover:bg-[#ff00000a] transition-colors border-b border-gray-200 cursor-pointer'
                   >
-                    <td className="px-6 py-4 font-medium text-gray-800 whitespace-nowrap text-center">
+                    <td className="px-6 py-2 font-medium text-gray-800 whitespace-nowrap text-center">
                       {indexOfFirst + index + 1}
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className='w-14 h-14 rounded-full overflow-hidden shadow-sm border border-gray-300 inline-block'>
+                    <td className="px-6 py-2 text-center flex justify-center items-center">
+                      <div className='w-11 h-11 rounded-full overflow-hidden shadow-sm border border-gray-300 inline-block'>
                         <img
                           src={category.image ? `${baseUrl}${category.image}` : '/default-category-image.png'}
                           alt={category.category || 'Category Image'}
@@ -105,10 +115,10 @@ function CategoryList() {
                         />
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-gray-900 capitalize text-center">
+                    <td className="px-6 py-2 font-semibold text-gray-900 capitalize text-center">
                       {category.category}
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-6 py-2 text-center justify-center items-center">
                       <div className='flex gap-3 justify-center'>
                         <Link 
                         to={`/edit-category/${category._id}`
@@ -130,7 +140,7 @@ function CategoryList() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                )))}
                 {currentCategories.length === 0 && !loading && (
                   <tr>
                     <td colSpan="4" className="text-center py-6 text-gray-500">
@@ -146,7 +156,7 @@ function CategoryList() {
           {/* {totalPages > 1 && (
             <div className="flex justify-center mt-6 gap-3">
               <button
-                className={`px-5 py-2 rounded-md shadow-sm text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`px-5 py-2   text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
@@ -156,8 +166,8 @@ function CategoryList() {
               {[...Array(totalPages)].map((_, idx) => (
                 <button
                   key={idx}
-                  className={`px-4 py-2 rounded-md shadow-sm transition ${currentPage === idx + 1
-                    ? 'bg-green-600 text-white'
+                  className={`px-4 py-2   transition ${currentPage === idx + 1
+                    ? 'bg-primary-red text-white'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   onClick={() => setCurrentPage(idx + 1)}
@@ -167,7 +177,7 @@ function CategoryList() {
               ))}
 
               <button
-                className={`px-5 py-2 rounded-md shadow-sm text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`px-5 py-2   text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
