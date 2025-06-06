@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createcategory, imageUpload, getCategoryById, updatecategory } from '../../../Actions/categoryAction';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesLeft, faImage } from '@fortawesome/free-solid-svg-icons';
+import { ToastContainer, toast, Bounce } from "react-toastify";
 
 const baseUrl =
   window.location.hostname === 'localhost'
@@ -93,7 +94,7 @@ const AddOrEditCategory = () => {
       // Assuming your backend returns { filePath: '...' }
       return response.filePath || response.imagePath || formData.image || '';
     } catch (error) {
-      alert('Image upload failed: ' + error.message);
+      toast.error('Image upload failed: ' + error.message);
       return '';
     }
   };
@@ -103,11 +104,11 @@ const AddOrEditCategory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-setError('')
+    setError('')
 
 
     if (!formData.category.trim()) {
-      alert('Please fill all missing details');
+      toast.warn('Please fill all missing details');
       setIsSubmitting(false)
       return;
     }
@@ -119,7 +120,7 @@ setError('')
 
     }
     if (!imagePath) {
-      alert('Please fill all missing details');
+      toast.warn('Please fill category image');
       setIsSubmitting(false)
       return;
     }
@@ -131,12 +132,13 @@ setError('')
 
 
       await dispatch(createcategory(newcategoryData));
-     navigate('/categories')
+      toast.success('New category created')
+      navigate('/categories')
     } catch (error) {
-      
+
       setIsSubmitting(false);
       setError(error.response?.data?.message || error.message || 'Failed to add category');
-      alert(error)
+      toast.error(error)
       // setError(error.message)
     }
   };
@@ -157,12 +159,12 @@ setError('')
     e.preventDefault();
     setIsSubmitting(true);
     if (!formData.category.trim()) {
-      alert('Please enter category name');
+      toast.warn('Please enter category name');
       return;
     }
 
     if (!id) {
-      alert('No category ID specified for update');
+      toast.warn('No category ID specified for update');
       return;
     }
 
@@ -171,7 +173,7 @@ setError('')
       let imagePath = formData.image;
       if (selectedImage) {
         imagePath = await uploadImage();
-        // alert(imagePath);
+        
         setFormData(prev => ({ ...prev, image: imagePath }));
       }
 
@@ -183,13 +185,15 @@ setError('')
       };
 
       const updatedUser = await dispatch(updatecategory(id, categoryData));
-      setFormSuccess('Category updated successfully');
+      toast.formSuccess('Category updated successfully');
       setTimeout(() => {
         setIsSubmitting(true);
         navigate('/categories')
       }, 1000);
 
-
+      if (error) {
+        toast.error(error);
+      }
       // navigate('/categories');
     } catch (err) {
       setIsSubmitting(false);
@@ -243,7 +247,7 @@ setError('')
                     src={preview}
                     alt="Category Preview"
                     width={100}
-                    className="mt-[16px] rounded"
+                    className="my-[16px] rounded"
                   />
 
                 ) : (<FontAwesomeIcon icon={faImage} />)}
@@ -276,13 +280,14 @@ setError('')
               )}
             </button>
 
-             {error && <div className="text-primary-red my-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
+            {/* {error && <div className="text-primary-red my-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
             {formSuccess && (
 
 
               <span className='my-[16px] p-[16px] border border-[#ddd] text-[14px] flex text-success'>{formSuccess}</span>
 
-            )}
+            )} */}
+             <ToastContainer position="top-center" theme="colored" autoClose={3000} />
 
           </form>
 

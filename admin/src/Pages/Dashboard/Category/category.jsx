@@ -5,6 +5,7 @@ import { getcategory, clearErrors,deletecategory } from "../../../Actions/catego
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import  './category.css'
 
 function CategoryList() {
@@ -12,7 +13,7 @@ function CategoryList() {
   // const [categories, setCategories] = useState([]);
   // const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 100;
+  const itemsPerPage = 10;
 
   const baseUrl = window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
@@ -30,7 +31,8 @@ function CategoryList() {
 
   useEffect(() => {
     if (error) {
-      alert(error);
+      // alert(error);
+      toast.error(error)
       dispatch(clearErrors());
     }
   }, [error, dispatch]);
@@ -44,9 +46,9 @@ function CategoryList() {
   try {
     await dispatch(deletecategory(categoryId));
     dispatch(getcategory());
-    setCurrentPage(1);  // reset page to 1 after deletion
+    setCurrentPage(1);  
   } catch (err) {
-    alert(err.message || 'Failed to delete category');
+    toast.error(err.message || 'Failed to delete category');
   }
 };
 
@@ -64,7 +66,7 @@ function CategoryList() {
     <div className='flex min-h-screen sm:min-w-full '>
       <div className='w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen '>
         <div className='flex flex-col gap-6 bg-white  p-10'>
-          {error && <p className="text-red-600 font-semibold">{error}</p>}
+          {/* {error && <p className="text-red-600 font-semibold">{error}</p>} */}
           {/* {loading && <p className="text-gray-600 font-medium">Loading categories...</p>} */}
 
           <div className='border-b border-gray-300  pb-[12px] flex justify-between items-center'>
@@ -149,6 +151,7 @@ function CategoryList() {
                   </tr>
                 )}
               </tbody>
+              <ToastContainer position="top-center" theme="colored" autoClose={3000} />
             </Table>
           </div>
 

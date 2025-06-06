@@ -4,6 +4,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../Actions/userAction";
 import { NavLink } from "react-router-dom";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import './admin.css';
 
 const Logo = `${process.env.REACT_APP_API_URL}/assets/images/logo-white.webp`;
@@ -33,14 +34,17 @@ setTimeout(() => {
    
     
    const response = dispatch(login(email, password, 'admin'));
-    // if(storedValue){
-    // setIsSubmitting(true)
-    // }else{
+    setIsSubmitting(false)
+    if(storedValue){
+    setIsSubmitting(true)
+    }else{
+    //  alert('error')
+         toast.error(error)
+      }
       
-       setIsSubmitting(false)
     // }
     }catch(error){
-      alert('entered')
+     toast.error(error)
       setIsSubmitting(false)
     }
   };
@@ -59,7 +63,7 @@ setTimeout(() => {
 
   useEffect(() => {
     if (storedValue) {
-      setFormSuccess("Login successful. Redirecting...");
+      toast.success("Login successful. Redirecting...");
     navigate('/dashboard')
     }
   }, [storedValue, navigate]);
@@ -123,9 +127,10 @@ setTimeout(() => {
                   >
                     {isSubmitting ? "Processing..." : "Login"}
                   </button>
+                  <ToastContainer position="top-center" theme="colored" autoClose={3000} />
  {/* {isLoggedIn && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px]">isLoggedIn</div>} */}
-                  {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{error}</div>}
-                  {formSuccess && <div className="text-success mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{formSuccess}</div>}
+                  {/* {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{error}</div>}
+                  {formSuccess && <div className="text-success mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{formSuccess}</div>} */}
                 </form>
               </div>
             </div>

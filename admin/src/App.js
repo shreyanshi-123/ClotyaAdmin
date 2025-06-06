@@ -7,8 +7,9 @@ import AddUser from './Pages/Dashboard/User/AddUser';
 import PageNotFound from './components/Layout/PageNotFound';
 import AdminDashboard from './Pages/Dashboard/dashboard';
 import ProtectedRoute from './Pages/Admin/ProtectedRoute';
-import AdminLogin from './Pages/Admin/adminLogin';
-import Layout from './components/Layout/Layout'; // Assuming this wraps sidebar/nav
+import AdminLogin from './Pages/Dashboard/Product/product';
+import Products from './Pages/Admin/adminLogin';
+import Layout from './components/Layout/Layout'; 
 import './App.css';
 
 function App() {
@@ -25,7 +26,8 @@ function App() {
           <Route path="/users" element={<ProtectedRoute redirectPath="/"><Users /></ProtectedRoute>} />
           <Route path="/add-user" element={<ProtectedRoute redirectPath="/"><AddUser /></ProtectedRoute>} />
           <Route path="/add-user/:id" element={<ProtectedRoute redirectPath="/"><AddUser /></ProtectedRoute>} />
-           {/* <Route path="/products" element={<Products />} /> */}
+           <Route path="/products" element={<ProtectedRoute redirectPath="/"><Products /></ProtectedRoute>} />
+            <Route path="/add-Product/:id" element={<ProtectedRoute redirectPath="/"><AddUser /></ProtectedRoute>} />
            <Route path="*" element={<PageNotFound />} />
         </Route>
 

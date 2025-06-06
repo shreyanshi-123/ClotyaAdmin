@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createUsers, imageUpload, updateUsers, getUserById } from '../../../Actions/userAction'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesLeft, faImage } from '@fortawesome/free-solid-svg-icons';
+import { ToastContainer, toast, Bounce } from "react-toastify";
 
 import './user.css'
 
@@ -106,7 +107,7 @@ function AddOrEditUser() {
       const response = await dispatch(imageUpload(data));
       return response.filePath || response.imagePath || formData.image || '';
     } catch (error) {
-      alert('Image upload failed: ' + error.message);
+      toast.error('Image upload failed: ' + error.message);
       return '';
     }
   };
@@ -118,7 +119,7 @@ function AddOrEditUser() {
     e.preventDefault();
     setIsSubmitting(true);
     if (!id) {
-      alert("No user is being edited.");
+      toast.error("No user is being edited.");
       return;
     }
 
@@ -153,7 +154,7 @@ function AddOrEditUser() {
       setEditingUser(null);
       setSelectedImage(null);
       setPreview(null);
-      setFormSuccess('User updated successfully');
+      toast.success('User updated successfully');
     } catch (err) {
       setIsSubmitting(false);
     }
@@ -212,37 +213,45 @@ function AddOrEditUser() {
   //     setIsSubmitting(false);
   //   }
   // };
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     setIsSubmitting(true);
 
-  
 
-  if (!formData.name || !formData.email || !formData.password) {
-    alert('Please fill out all required fields');
-    setIsSubmitting(false);
-    return;
-  }
 
-  let imagePath = '';
-  if (selectedImage) {
-    imagePath = await uploadImage();
-  }
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.warn('Please fill out all required fields');
+      setIsSubmitting(false);
+      return;
+    }
 
-  const newUserData = { ...formData, image: imagePath };
-  console.log(newUserData);
+    let imagePath = '';
+    if (selectedImage) {
+      imagePath = await uploadImage();
+    }
 
-  try {
-    await dispatch(createUsers(newUserData));
-    setIsSubmitting(false);
-    // Don't navigate here — wait for useEffect to handle it
-  } catch (error) {
-    console.error('Submission failed', error);
-    alert('Submission failed: ' + error.message);
-    setIsSubmitting(false);
-  }
-};
+    const newUserData = { ...formData, image: imagePath };
+    console.log(newUserData);
+
+    try {
+   const res =   await dispatch(createUsers(newUserData));
+   if(users) {
+    setTimeout(() => {
+      toast.success(res);
+    }, 1000);
+   
+   }
+      setIsSubmitting(false);
+       toast.error(error);
+
+    } catch (error) {
+
+      console.error('Submission failed', error);
+      toast.error('Submission failed: ' + error.message);
+      setIsSubmitting(false);
+    }
+  };
 
 
 
@@ -378,29 +387,15 @@ function AddOrEditUser() {
               </button>
 
             </form>
-            {error && <div className="text-primary-red my-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
+            {/* {error && <div className="text-primary-red my-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
             {formSuccess && (
 
 
               <span className='my-[16px] p-[16px] border border-[#ddd] text-[14px] flex text-success'>{formSuccess}</span>
 
-            )}
+            )} */}
 
-            {/* <div className=' flex gap-2'>
-              {loading && (<>
-                <CircularProgress
-                  sx={{
-                    color: (theme) =>
-                      theme.palette.grey[theme.palette.mode === 'dark' ? 400 : 800],
-                  }}
-                  size={20}
-                  thickness={4}
-                  value={100}
-                />
-                Loading..
-              </>
-              )}
-            </div> */}
+          <ToastContainer position="bottom-center" autoClose={3000} />
           </div>
         </div>
       </div>
