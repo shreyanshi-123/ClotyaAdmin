@@ -4,7 +4,7 @@ import { CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from "react-redux";
 import { createUsers, imageUpload, updateUsers, getUserById } from '../../../Actions/userAction'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesLeft, faImage } from '@fortawesome/free-solid-svg-icons';
 
 import './user.css'
 
@@ -16,14 +16,16 @@ function AddOrEditUser() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [file, setFile] = useState();
   const [preview, setPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const isLoggedIn = useSelector(state => state.loginAdmin.isLoggedIn);
   const { users = [], loading, error } = useSelector(state => state.newUser);
+
   const { user, } = useSelector(state => state.userDetail);
   const { image } = useSelector(state => state.imageUser);
-  // alert(JSON.stringify(user))
+
   const { id } = useParams();
 
   const baseUrl = window.location.hostname === 'localhost'
@@ -32,7 +34,9 @@ function AddOrEditUser() {
   const imageUrl = user?.image ? `${baseUrl}${user.image}` : null;
 
 
-
+  const goBack = () => {
+    navigate(-1);
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -92,7 +96,6 @@ function AddOrEditUser() {
   }, [preview]);
 
 
-
   const uploadImage = async () => {
     if (!selectedImage) return formData.image || '';
 
@@ -113,6 +116,7 @@ function AddOrEditUser() {
 
   const updateUser = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (!id) {
       alert("No user is being edited.");
       return;
@@ -139,53 +143,106 @@ function AddOrEditUser() {
       }
 
 
-      const updatedUser = await dispatch(updateUsers(id, userData));
+      await dispatch(updateUsers(id, userData));
 
-      navigate('/users')
+      setTimeout(() => {
+        setIsSubmitting(true);
+        navigate('/users')
+      }, 1000);
 
       setEditingUser(null);
       setSelectedImage(null);
       setPreview(null);
       setFormSuccess('User updated successfully');
     } catch (err) {
-
+      setIsSubmitting(false);
     }
   };
 
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.password) {
-      alert('Please fill out all required fields');
-      return;
+  const styles = {
+    disabledButton: {
+      backgroundColor: 'gray',
+      color: 'white',
+      cursor: 'not-allowed',
+      border: '0px'
+    },
+    enabled: {
+      cursor: 'pointer'
     }
+  }
 
-    let imagePath = '';
-    if (selectedImage) {
-      imagePath = await uploadImage();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsSubmitting(true);
 
-    }
+  //   alert(JSON.stringify(users))
+  //   if (!formData.name || !formData.email || !formData.password) {
+  //     alert('Please fill out all required fields');
+  //     return;
+  //   }
+
+  //   let imagePath = '';
+  //   if (selectedImage) {
+  //     imagePath = await uploadImage();
+
+  //   }
 
 
-    const newUserData = { ...formData, image: imagePath };
-    console.log(newUserData)
+  //   const newUserData = { ...formData, image: imagePath };
+  //   console.log(newUserData)
+  //   try {
+
+  //     await dispatch(createUsers(newUserData));
+
+
+  //     if (users) {
+  //       // setTimeout(() => {
+  //       setIsSubmitting(true);
+  //       navigate('/users')
+  //       // }, 1000);
+  //     } else {
+  //       setIsSubmitting(false);
+  //       return
+  //     }
+
+
+  //   } catch (error) {
+  //     console.error('Submission failed', error);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+    setIsSubmitting(true);
+
+  
+
+  if (!formData.name || !formData.email || !formData.password) {
+    alert('Please fill out all required fields');
+    setIsSubmitting(false);
+    return;
+  }
+
+  let imagePath = '';
+  if (selectedImage) {
+    imagePath = await uploadImage();
+  }
+
+  const newUserData = { ...formData, image: imagePath };
+  console.log(newUserData);
+
+  try {
     await dispatch(createUsers(newUserData));
-    navigate('/users')
-
-  };
-
-
-
-
-
-
-
-
-
-
-
+    setIsSubmitting(false);
+    // Don't navigate here — wait for useEffect to handle it
+  } catch (error) {
+    console.error('Submission failed', error);
+    alert('Submission failed: ' + error.message);
+    setIsSubmitting(false);
+  }
+};
 
 
 
@@ -199,9 +256,21 @@ function AddOrEditUser() {
 
     <div className=' flex min-h-screen sm:min-w-full '>
       <div className=' w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen'>
+        {/* <button onClick={goBack}>Go Back</button> */}
         <div className={`flex flex-col gap-6  sm:p-10 pb-6 overflow-hidden `}>
           {/* <p>user id: {id}</p> */}
-          <h2 className='border-b pb-3 border-gray-300 text-xl font-semibold capitalize flex items-center '> {id ? ("Edit User") : ("Add User")}  </h2>
+
+          <div className='border-b pb-[12px] border-gray-300 flex justify-between items-center'>
+            <h2 className='text-xl font-semibold capitalize flex items-center'>
+              {id ? ("Edit User") : ("Add User")}
+            </h2>
+
+            <button onClick={goBack} className='w-fit hover:opacity-[0.8] border border-[#ee403d]  text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px]'>
+              <FontAwesomeIcon icon={faAnglesLeft} />  Go Back
+            </button>
+
+
+          </div>
           <div id='refistration-form' className={`  px-[1px] w-3/5  `}>
             <form onSubmit={id ? (updateUser) : (handleSubmit)} className='flex flex-col ' >
               <p className='mb-[16px]'>
@@ -275,46 +344,49 @@ function AddOrEditUser() {
 
               </p>
               <div className="my-[16px] flex flex-col ">
-                        <div className="w-full border border-gray-300 border-b-0  px-3 py-2 flex items-center justify-center h-[140px] p-4">
-                       {preview ? (
-                        
-                         <img
-                           src={preview}
-                           alt="Category Preview"
-                           width={100}
-                           className="mt-[16px] rounded"
-                         />
-                        
-                       ):(<FontAwesomeIcon icon={faImage} />)}
-                        </div>
-                       <label className=" font-medium border border-[#ddd] text-center cursor-pointer text-black  py-2 px-5  hover: false mb-[5px] img-box w-ful bg-gray-200 hover:bg-gray-600 hover:text-white">User Image
-                       <input
-                         type="file"
-                         name="image"
-                         accept="image/*"
-                         onChange={handleFileChange}
-                         className="hidden"
-                         disabled={loading}
-                       /></label>
-                       
-                     </div>
+                <div className="w-full border border-gray-300 border-b-0  px-3 py-2 flex items-center justify-center h-[140px] p-4">
+                  {preview ? (
+
+                    <img
+                      src={preview}
+                      alt="Category Preview"
+                      width={100}
+                      className="mt-[16px] rounded"
+                    />
+
+                  ) : (<FontAwesomeIcon icon={faImage} />)}
+                </div>
+                <label className=" font-medium border border-[#ddd] text-center cursor-pointer text-black  py-2 px-5  hover: false mb-[5px] img-box w-ful bg-gray-200 hover:bg-gray-600 hover:text-white">User Image
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    disabled={loading}
+                  /></label>
+
+              </div>
               <button
+                disabled={isSubmitting}
                 type="submit"
                 className='w-fit hover:opacity-[0.8] border border-[#ee403d] mt-[16px] text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px] register-btn'
+                style={isSubmitting ?
+                  styles.disabledButton : styles.enabled}
               >
-                {id ? ("Update") : ("Add User")}
+                {isSubmitting ? 'Processing....' : id ? 'Update' : 'Add User'}
               </button>
 
             </form>
-            {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
+            {error && <div className="text-primary-red my-[16px] p-[16px] border border-[#ddd] text-[14px] ">{error}</div>}
             {formSuccess && (
 
 
-              <span className='mb-[16px] p-[16px] border border-[#ddd] text-[14px] flex text-success'>{formSuccess}</span>
+              <span className='my-[16px] p-[16px] border border-[#ddd] text-[14px] flex text-success'>{formSuccess}</span>
 
             )}
 
-            <div className=' flex gap-2'>
+            {/* <div className=' flex gap-2'>
               {loading && (<>
                 <CircularProgress
                   sx={{
@@ -328,11 +400,11 @@ function AddOrEditUser() {
                 Loading..
               </>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

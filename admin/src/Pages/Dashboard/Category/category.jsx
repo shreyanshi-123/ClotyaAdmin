@@ -3,7 +3,7 @@ import Table from 'react-bootstrap/Table';
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory, clearErrors,deletecategory } from "../../../Actions/categoryAction";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import  './category.css'
 
@@ -82,10 +82,10 @@ function CategoryList() {
             <Table className='w-full text-sm text-gray-700'>
               <thead className='text-[16px] text-gray-700 bg-gray-50'>
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-center">S. No.</th>
-                  <th scope="col" className="px-6 py-3 text-center">Category Image</th>
-                  <th scope="col" className="px-6 py-3 text-center">Category Name</th>
-                  <th scope="col" className="px-6 py-3 text-center">Action</th>
+                  <th scope="col" className="px-6 py-4 text-center">S. No.</th>
+                  <th scope="col" className="px-6 py-4 text-center">Category Image</th>
+                  <th scope="col" className="px-6 py-4 text-center">Category Name</th>
+                  <th scope="col" className="px-6 py-4 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,22 +153,22 @@ function CategoryList() {
           </div>
 
           {/* Pagination Controls - Uncomment to enable */}
-          {/* {totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex justify-center mt-6 gap-3">
               <button
-                className={`px-5 py-2   text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`px-5 py-2   text-gray-900 transition disabled:opacity-50 `}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Prev
+             <FontAwesomeIcon icon={faAngleLeft} className='text-black mr-[5px]' />   Prev
               </button>
 
               {[...Array(totalPages)].map((_, idx) => (
                 <button
                   key={idx}
                   className={`px-4 py-2   transition ${currentPage === idx + 1
-                    ? 'bg-primary-red text-white'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? ' text-black'
+                    : '  text-gray-900'
                     }`}
                   onClick={() => setCurrentPage(idx + 1)}
                 >
@@ -177,14 +177,14 @@ function CategoryList() {
               ))}
 
               <button
-                className={`px-5 py-2   text-gray-700 bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`px-5 py-2   text-gray-900   transition disabled:opacity-50 `}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                Next <FontAwesomeIcon icon={faAngleRight} className='text-black ml-[5px]' />
               </button>
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>

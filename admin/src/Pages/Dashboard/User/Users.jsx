@@ -4,13 +4,13 @@ import { getUsers, deleteUser, clearErrors } from "../../../Actions/userAction";
 import Table from 'react-bootstrap/Table';
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faTrash, faUserAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faUserAlt,faAngleLeft,faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import './user.css';
 
 function UserList() {
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 1000;
+  const usersPerPage = 100;
 
   const baseUrl = window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
@@ -66,12 +66,12 @@ function UserList() {
             <Table className='w-full text-[15px] text-left text-gray-700 dark:text-gray-400'>
               <thead className='text-[16px] text-gray-700 bg-gray-50'>
                 <tr>
-                  <th scope="col" className="px-6 py-3">S. No.</th>
-                  <th scope="col" className="px-6 py-3">Name</th>
-                  <th scope="col" className="px-6 py-3">Email</th>
-                  <th scope="col" className="px-6 py-3">Role</th>
-                  <th scope="col" className="px-6 py-3">Registered On</th>
-                  <th scope="col" className="px-6 py-3">Action</th>
+                  <th scope="col" className="px-6 py-4">S. No.</th>
+                  <th scope="col" className="px-6 py-4">Name</th>
+                  <th scope="col" className="px-6 py-4">Email</th>
+                  <th scope="col" className="px-6 py-4">Role</th>
+                  <th scope="col" className="px-6 py-4">Registered On</th>
+                  <th scope="col" className="px-6 py-4">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,7 +146,38 @@ function UserList() {
           </div>
 
           {/* Pagination (optional) */}
-          {/* Uncomment if you want to enable pagination */}
+         {totalPages > 1 && (
+                     <div className="flex justify-center mt-6 gap-3">
+                       <button
+                         className={`px-5 py-2   text-gray-900 transition disabled:opacity-50 `}
+                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                         disabled={currentPage === 1}
+                       >
+                      <FontAwesomeIcon icon={faAngleLeft} className='text-black mr-[5px]' />   Prev
+                       </button>
+         
+                       {[...Array(totalPages)].map((_, idx) => (
+                         <button
+                           key={idx}
+                           className={`px-4 py-2   transition ${currentPage === idx + 1
+                             ? ' text-black'
+                             : '  text-gray-900'
+                             }`}
+                           onClick={() => setCurrentPage(idx + 1)}
+                         >
+                           {idx + 1}
+                         </button>
+                       ))}
+         
+                       <button
+                         className={`px-5 py-2   text-gray-900   transition disabled:opacity-50 `}
+                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                         disabled={currentPage === totalPages}
+                       >
+                         Next <FontAwesomeIcon icon={faAngleRight} className='text-black ml-[5px]' />
+                       </button>
+                     </div>
+                   )}
         </div>
       </div>
     </div>

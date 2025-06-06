@@ -52,7 +52,7 @@ export const getUsers = () => async (dispatch) => {
 
 // Create New User (Admin)
 export const createUsers = (userData) => async (dispatch) => {
- 
+
   try {
     dispatch({ type: NEW_USER_REQUEST });
 
@@ -65,12 +65,17 @@ export const createUsers = (userData) => async (dispatch) => {
     dispatch({
       type: NEW_USER_SUCCESS,
       payload: data,
+      loading: true
     });
+    window.location.href = ('/users')
   } catch (error) {
+
     dispatch({
       type: NEW_USER_FAIL,
-      payload: error.response?.data?.message || error.message,
+      payload: error.response.data || error.message,
+      loading: false
     });
+    // alert(JSON.stringify(error.response.data))
   }
 };
 
@@ -93,7 +98,7 @@ export const updateUsers = (id, userData) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: UPDATE_USER_FAIL,
-      payload: error.response?.data?.message || error.message,
+      payload: error.response.data || error.message,
     });
   }
 };
@@ -128,18 +133,19 @@ export const login = (email, password, role) => async (dispatch) => {
 
     const { data } = await axios.post(`${baseUrl}/api/login`, { email, password, role }, config);
 
-    dispatch({ type: LOGIN_SUCCESS, payload: data });
+    dispatch({ type: LOGIN_SUCCESS, payload: data, error: false });
 
     // Save session info
     localStorage.setItem('user', JSON.stringify(data.user));
     localStorage.setItem('token', data.token);
-//   localStorage.setItem("userInfo", JSON.stringify(userData));
+    //   localStorage.setItem("userInfo", JSON.stringify(userData));
     // Redirect
     window.location.href = '/dashboard';
   } catch (error) {
     dispatch({
       type: LOGIN_FAILURE,
       payload: error.response?.data?.message || error.message,
+      error: true
     });
   }
 };
@@ -155,13 +161,13 @@ export const logout = () => (dispatch) => {
 
 export const imageUpload = (formData) => async (dispatch) => {
   // alert(JSON.stringify(formData)); 
-  
+
   try {
     dispatch({ type: IMAGE_REQUEST });
 
-   
+
     const config = {
-      headers: { 
+      headers: {
         // "Content-Type": "multipart/form-data" // Axios sets this automatically if omitted
       }
     };
@@ -170,16 +176,16 @@ export const imageUpload = (formData) => async (dispatch) => {
 
     dispatch({
       type: IMAGE_SUCCESS,
-      payload: data, 
+      payload: data,
     });
 
-    return data; 
+    return data;
   } catch (error) {
     dispatch({
       type: IMAGE_FAIL,
       payload: error.response?.data?.message || error.message,
     });
-    throw error; 
+    throw error;
   }
 };
 
@@ -194,7 +200,7 @@ export const clearErrors = () => (dispatch) => {
 // userActions.js
 // import axios from 'axios';
 // import {
- 
+
 // } from '../Constants/userConstants';
 
 

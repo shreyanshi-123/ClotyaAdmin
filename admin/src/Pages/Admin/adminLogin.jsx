@@ -13,21 +13,49 @@ function UserLogin() {
   const [password, setPassword] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('login');
-
+const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { loading, error, isLoggedIn } = useSelector(state => state.loginAdmin);
  const storedValue = localStorage.getItem('user');
-  const handleTabClick = (tab) => (e) => {
-    e.preventDefault();
-    setActiveTab(tab);
-  };
+  // const handleTabClick = (tab) => (e) => {
+  //   e.preventDefault();
+  //   setActiveTab(tab);
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    dispatch(login(email, password, 'admin'));
+    try{
+setTimeout(() => {
+   setIsSubmitting(true)
+}, 100);
+   
+    
+   const response = dispatch(login(email, password, 'admin'));
+    // if(storedValue){
+    // setIsSubmitting(true)
+    // }else{
+      
+       setIsSubmitting(false)
+    // }
+    }catch(error){
+      alert('entered')
+      setIsSubmitting(false)
+    }
   };
+
+ const styles = {
+    disabledButton: {
+      backgroundColor: 'gray',
+      color: 'white',
+      cursor: 'not-allowed',
+      border: '0px'
+    },
+    enabled: {
+      cursor: 'pointer'
+    }
+  }
 
   useEffect(() => {
     if (storedValue) {
@@ -88,10 +116,12 @@ function UserLogin() {
 
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isSubmitting}
+                     style={isSubmitting ?
+                  styles.disabledButton : styles.enabled}
                     className='hover:opacity-[0.8] border border-[#ee403d] mb-[16px] text-white bg-[#ee403d] py-[8px] px-[15px] w-fit rounded-[2px]'
                   >
-                    {loading ? "Loading..." : "Login"}
+                    {isSubmitting ? "Processing..." : "Login"}
                   </button>
  {/* {isLoggedIn && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px]">isLoggedIn</div>} */}
                   {error && <div className="text-primary-red mb-[16px] p-[16px] border border-[#ddd] text-[14px]">{error}</div>}

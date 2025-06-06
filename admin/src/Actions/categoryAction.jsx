@@ -65,11 +65,14 @@ export const createcategory = (categoryData) => async (dispatch) => {
             type: NEW_CATEGORY_SUCCESS,
             payload: data,
         });
+         return data
     } catch (error) {
         dispatch({
             type: NEW_CATEGORY_FAIL,
-            payload: error.response?.data?.message || error.message,
+            payload: error.response.data.message || error.message,
         });
+        throw error
+        //  alert(JSON.stringify(error.response.data.message))
     }
 };
 
@@ -89,11 +92,13 @@ export const updatecategory = (id, categoryData) => async (dispatch) => {
             type: UPDATE_CATEGORY_SUCCESS,
             payload: data.success,
         });
+        window.location.href = ('/categories')
     } catch (error) {
         dispatch({
             type: UPDATE_CATEGORY_FAIL,
-            payload: error.response?.data?.message || error.message,
+            payload: error.response.data || error.message,
         });
+       
     }
 };
 
