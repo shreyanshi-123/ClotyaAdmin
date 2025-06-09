@@ -18,6 +18,11 @@ import {
   // updatecategoryReducer,
   categoryDetailsReducer
 } from './Reducers/categoriyReducer';
+import {
+ newProductReducer,
+ GetProducrReducer
+} from './Reducers/productReducer'
+import AddProduct from './Pages/Dashboard/Product/AddProduct';
 
 const reducer = combineReducers({
   userList: usersReducer,
@@ -32,7 +37,8 @@ const reducer = combineReducers({
  imageUser: imageuserReducer ,
  userDetail:userDetailsReducer,
  categoryDetail:categoryDetailsReducer,
-//  updatecategory: updatecategoryReducer
+ newProduct: newProductReducer,
+ productList:GetProducrReducer
 });
 
 // Optional: You can remove `initialState` if each reducer defines its own default state
