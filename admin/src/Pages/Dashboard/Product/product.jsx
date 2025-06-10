@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { getProducts, deleteProduct, clearErrors } from "../../../Actions/productActions";
+import { getProducts, deleteproducts, clearErrors } from "../../../Actions/productActions";
 import Table from 'react-bootstrap/Table';
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,13 +20,17 @@ function ProductList() {
 
   const { products = [], loading, error } = useSelector(state => state.productList);
 
-  // Sort products by created date descending if date available
-  const sortedProducts = products.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+  // Sort products by created date descending if date available
+  const sortedProducts = Array.isArray(products) 
+  ? products.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  : [];
+ console.log(products.products)
+
+  // const indexOfLastProduct = currentPage * productsPerPage;
+  // const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  // const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  // const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
 
   useEffect(() => {
     if (error) {
@@ -39,7 +43,7 @@ function ProductList() {
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
-    // await dispatch(deleteProduct(productId));
+    await dispatch(deleteproducts(productId));
     dispatch(getProducts());
   };
 
@@ -63,13 +67,14 @@ function ProductList() {
               <thead className='text-[16px] text-gray-700 bg-gray-50'>
                 <tr>
                   <th scope="col" className="px-6 py-4">S. No.</th>
-                  <th scope="col" className="px-6 py-4">Image</th>
-                  <th scope="col" className="px-6 py-4">Title</th>
+                  {/* <th scope="col" className="px-6 py-4">Image</th> */}
+                  <th scope="col" className="px-6 py-4">Product</th>
                   <th scope="col" className="px-6 py-4">Category</th>
                   <th scope="col" className="px-6 py-4">Price</th>
+                  <th scope="col" className="px-6 py-4">Selling Price</th>
                   <th scope="col" className="px-6 py-4">Stock</th>
-                  <th scope="col" className="px-6 py-4">Featured</th>
-                  <th scope="col" className="px-6 py-4">Added On</th>
+                  {/* <th scope="col" className="px-6 py-4">Featured</th> */}
+                  {/* <th scope="col" className="px-6 py-4">Added On</th> */}
                   <th scope="col" className="px-6 py-4">Action</th>
                 </tr>
               </thead>
@@ -80,17 +85,17 @@ function ProductList() {
                       Loading products...
                     </td>
                   </tr>
-                ) : currentProducts.length === 0 ? (
+                ) : products.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="text-center py-10 text-gray-500 font-medium">
                       No products found.
                     </td>
                   </tr>
                 ) : (
-                  currentProducts.map((product, index) => {
+                 products.products.map((product, index) => {
                     // Compose image URL safely
                     const imageUrl = product.images && product.images.length > 0 
-                      ? `${baseUrl}${product.images[0].startsWith('/') ? '' : '/'}${product.images[0]}`
+                      ? `${product.images[0] ? '' : '/'}${product.images[0]}`
                       : null;
 
                     return (
@@ -98,31 +103,37 @@ function ProductList() {
                         key={product._id}
                         className='text-black bg-white border-b border-gray-200 hover:shadow-lg hover:bg-[#ff00000a] transition-colors duration-200'
                       >
-                        <td className="px-6 py-2 capitalize font-semibold">{indexOfFirstProduct + index + 1}</td>
-                        <td className="px-6 py-2">
+                        <td className="px-6 py-2 capitalize font-semibold">{ index + 1}</td>
+                        <td className="px-6 py-2 flex gap-2">
                           {imageUrl ? (
                             <LazyLoadImage
                               src={imageUrl}
                               alt={product.title}
                               height={50}
                               width={50}
-                              effect="blur"
+                              effect=""
                               className="object-cover rounded"
                             />
                           ) : (
                             <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded text-gray-500 text-xs">
                               No Image
                             </div>
+                           
                           )}
+
+                          <div className="px-2 py-2 font-semibold flex items-center">
+                              {product.title}
+                            </div>
                         </td>
-                        <td className="px-6 py-2 font-semibold">{product.title}</td>
+                        {/* <td className="px-6 py-2 font-semibold"></td> */}
                         <td className="px-6 py-2">{product.category}</td>
                         <td className="px-6 py-2">${product.sellingPrice}</td>
+                        <td className="px-6 py-2">${product.discountPrice}</td>
                         <td className="px-6 py-2">{product.stock}</td>
-                        <td className="px-6 py-2">{product.featured ? 'Yes' : 'No'}</td>
-                        <td className="px-6 py-2 text-gray-500 font-mono">
+                        {/* <td className="px-6 py-2">{product.featured ? 'Yes' : 'No'}</td> */}
+                        {/* <td className="px-6 py-2 text-gray-500 font-mono">
                           {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : ''}
-                        </td>
+                        </td> */}
                         <td className="px-6 py-2">
                           <div className='flex gap-3 justify-center'>
                             <Link to={`/edit-product/${product._id}`}>
@@ -152,7 +163,7 @@ function ProductList() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {/* {totalPages > 1 && (
             <div className="flex justify-center mt-6 gap-3">
               <button
                 className={`px-5 py-2 text-gray-900 transition disabled:opacity-50`}
@@ -180,7 +191,7 @@ function ProductList() {
                 Next <FontAwesomeIcon icon={faAngleRight} className='text-black ml-[5px]' />
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

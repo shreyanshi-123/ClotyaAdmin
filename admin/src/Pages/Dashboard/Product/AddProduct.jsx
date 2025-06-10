@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProduct } from '../../../Actions/productActions';
+import { createProduct, getProducts, getProductById } from '../../../Actions/productActions';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAnglesLeft, faImage } from '@fortawesome/free-solid-svg-icons';
+
 
 function AddProduct() {
+  // const [formData, setFormData] = useState({
+  //   title: '',
+  //   shortDescription: '',
+  //   LongDescription: '',
+  //   sellingPrice: '',
+  //   discountPrice: '',
+  //   category: '',
+  //   stock: '',
+  //   images: ''
+  // });
+  const [selectedImage, setSelectedImage] = useState(null);
+    const [preview, setPreview] = useState(null); // preview URL for image preview
   const [title, setTitle] = useState('');
-  const [shortDesc, setShortDesc] = useState('');
-  const [description, setDescription] = useState('');
+  const [shortDescription, setshortDescription] = useState('');
+  const [LongDescription, setLongDescription] = useState('');
   const [sellPrice, setSellPrice] = useState('');
   const [discountPrice, setDiscountPrice] = useState('');
   const [category, setCategory] = useState('');
@@ -14,55 +30,121 @@ function AddProduct() {
   const [additionalInfo, setAdditionalInfo] = useState([{ key: '', value: '' }]);
   const [images, setImages] = useState([]);
   const [featured, setFeatured] = useState(false);
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading, error, product } = useSelector((state) => state.newProduct);
+  const { loading, error, products } = useSelector((state) => state.newProduct);
+  const { data } = useSelector((state) => state.productdetail);
 
+
+  const ProductFetched = JSON.stringify(data)
+  // console.log(ProductFetched)
   const handleAddInfo = () => {
     setAdditionalInfo([...additionalInfo, { key: '', value: '' }]);
   };
-
+  const goBack = () => {
+    navigate(-1);
+  };
   const handleRemoveInfo = (index) => {
     const updated = [...additionalInfo];
     updated.splice(index, 1);
     setAdditionalInfo(updated);
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages(files);
+  // const handleImageChange = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setImages(files);
+  // };
+
+  const { id } = useParams();
+  useEffect(() => {
+    if (id) {
+
+      dispatch(getProductById(id));
+
+    }
+  }, [dispatch, id]);
+  const handleFileChange = (e) => {
+    const files = Array(e.target.files);
+    setSelectedImage(files);
+
+    if (files) {
+      setPreview(URL.createObjectURL(files));
+    } else {
+      setPreview(null);
+    }
   };
+
+
+  useEffect(() => {
+    if (data?.product) {
+      setTitle(data.product.title ||'' );
+      setshortDescription(data.product.shortDescription || '');
+      setLongDescription(data.product.LongDescription || '');
+      setSellPrice(data.product.sellingPrice || '');
+      setDiscountPrice(data.product.discountPrice || '');
+      setCategory(data.product.category || '');
+      setStockManaged(data.product.stock > 0);
+      setStockQuantity(data.product.stock || '');
+      setAdditionalInfo(JSON.parse(data.product.additionalInfo) || [{ key: '', value: '' }]);
+      setImages(data.product.images || []);
+    }
+  }, [data]);
+
+
+useEffect(() => {
+    return () => {
+      if (!id) return;
+      if (preview) URL.revokeObjectURL(preview);
+    }
+  }, [preview]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append('title', title);
-    formData.append('shortDesc', shortDesc);
-    formData.append('description', description);
+    formData.append('shortDescription', shortDescription);
+    formData.append('LongDescription', LongDescription);
     formData.append('sellingPrice', sellPrice);
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
     formData.append('stock', stockManaged ? stockQuantity : 0);
-    formData.append('featured', featured);
+    formData.append('images', featured);
 
     images.forEach((img) => {
-      formData.append('images', img);
+      formData.append('image', img);
     });
 
     formData.append('additionalInfo', JSON.stringify(additionalInfo));
-
+    console.log(JSON.stringify(additionalInfo))
     dispatch(createProduct(formData));
+    // if(!error){
+
+    navigate('/products')
+    // }
   };
 
   return (
-    <div className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto min-h-screen p-10">
-      <h2 className="text-2xl font-bold mb-6">Add New Product</h2>
-      {loading && <p>Adding product...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {product && <p className="text-green-500">Product added successfully!</p>}
+    <div className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto gap-6 flex flex-col min-h-screen p-10">
+      <div className='border-b pb-[12px] border-gray-300 flex justify-between items-center'>
+        <h2 className='text-xl font-semibold capitalize flex items-center'>
+          {/* {id ? ("Edit Product") : (" */}
+          Add Products
+          {/* ")} */}
+        </h2>
+
+        <button onClick={goBack} className='w-fit hover:opacity-[0.8] border border-[#ee403d]  text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px]'>
+          <FontAwesomeIcon icon={faAnglesLeft} />  Go Back
+        </button>
+
+
+      </div>
+
 
       <form className="space-y-6" onSubmit={handleSubmit}>
+        {loading && <p>Adding product...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {products && <p className="text-green-500">Product added successfully!</p>}
         <div>
           <label className="block font-medium">Title</label>
           <input
@@ -78,8 +160,8 @@ function AddProduct() {
           <label className="block font-medium">Short Description</label>
           <input
             type="text"
-            value={shortDesc}
-            onChange={(e) => setShortDesc(e.target.value)}
+            value={shortDescription}
+            onChange={(e) => setshortDescription(e.target.value)}
             className="w-full border border-gray-300 p-2 rounded"
           />
         </div>
@@ -87,8 +169,8 @@ function AddProduct() {
         <div>
           <label className="block font-medium">Description</label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={LongDescription}
+            onChange={(e) => setLongDescription(e.target.value)}
             className="w-full border border-gray-300 p-2 rounded"
             rows="4"
           />
@@ -125,9 +207,12 @@ function AddProduct() {
             required
           >
             <option value="">Select category</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Fashion">Fashion</option>
-            <option value="Home">Home</option>
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Bags">Bags</option>
+            <option value="Shoes">Shoes</option>
+            <option value="Jwellery">Jwellery</option>
+            <option value="Glasses">Glasses</option>
           </select>
         </div>
 
@@ -199,18 +284,20 @@ function AddProduct() {
             type="file"
             accept="image/*"
             multiple
-            onChange={handleImageChange}
+            onChange={handleFileChange}
             className="w-full border border-gray-300 p-2 rounded"
           />
           <div className="flex gap-2 mt-2">
-            {images.map((file, index) => (
-              <img
-                key={index}
-                src={URL.createObjectURL(file)}
-                alt="preview"
-                className="h-20 w-20 object-cover border"
-              />
-            ))}
+           {preview ? (
+           
+                             <img
+                               src={preview}
+                               alt="Category Preview"
+                               width={100}
+                               className="my-[16px] rounded"
+                             />
+           
+                           ) : (<FontAwesomeIcon icon={faImage} />)}
           </div>
         </div>
 

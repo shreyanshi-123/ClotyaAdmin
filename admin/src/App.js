@@ -31,6 +31,7 @@ function App() {
           <Route path="/add-user/:id" element={<AddUser />} />
           <Route path="/products" element={<Products />} />
           <Route path="/add-product" element={<AddProduct />} />
+          <Route path="/edit-product/:id" element={<AddProduct />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

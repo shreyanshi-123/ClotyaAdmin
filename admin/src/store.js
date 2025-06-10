@@ -20,9 +20,10 @@ import {
 } from './Reducers/categoriyReducer';
 import {
  newProductReducer,
- GetProducrReducer
+ GetProducrReducer,
+ productDetailReducer
 } from './Reducers/productReducer'
-import AddProduct from './Pages/Dashboard/Product/AddProduct';
+
 
 const reducer = combineReducers({
   userList: usersReducer,
@@ -38,7 +39,8 @@ const reducer = combineReducers({
  userDetail:userDetailsReducer,
  categoryDetail:categoryDetailsReducer,
  newProduct: newProductReducer,
- productList:GetProducrReducer
+ productList:GetProducrReducer,
+ productdetail:productDetailReducer
 });
 
 // Optional: You can remove `initialState` if each reducer defines its own default state
