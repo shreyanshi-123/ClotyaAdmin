@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProduct, getProducts, getProductById } from '../../../Actions/productActions';
+import { createProduct, getProductById, updatproduct } from '../../../Actions/productActions';
+import { getcategory } from "../../../Actions/categoryAction";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesLeft, faImage } from '@fortawesome/free-solid-svg-icons';
 
 
 function AddProduct() {
-  // const [formData, setFormData] = useState({
-  //   title: '',
-  //   shortDescription: '',
-  //   LongDescription: '',
-  //   sellingPrice: '',
-  //   discountPrice: '',
-  //   category: '',
-  //   stock: '',
-  //   images: ''
-  // });
+
   const [selectedImage, setSelectedImage] = useState(null);
-    const [preview, setPreview] = useState(null); // preview URL for image preview
+  const [preview, setPreview] = useState([]);
   const [title, setTitle] = useState('');
   const [shortDescription, setshortDescription] = useState('');
   const [LongDescription, setLongDescription] = useState('');
@@ -36,8 +29,13 @@ function AddProduct() {
   const { data } = useSelector((state) => state.productdetail);
 
 
-  const ProductFetched = JSON.stringify(data)
-  // console.log(ProductFetched)
+  const { categories = [] } = useSelector(state => state.categoryList);
+
+  useEffect(() => {
+    dispatch(getcategory());
+
+  }, [dispatch]);
+
   const handleAddInfo = () => {
     setAdditionalInfo([...additionalInfo, { key: '', value: '' }]);
   };
@@ -50,13 +48,27 @@ function AddProduct() {
     setAdditionalInfo(updated);
   };
 
-  // const handleImageChange = (e) => {
-  //   const files = Array.from(e.target.files);
-  //   setImages(files);
-  // };
-
   const { id } = useParams();
   useEffect(() => {
+    if (!id) {
+      setTitle('');
+      setshortDescription('');
+      setLongDescription('');
+      setSellPrice('');
+      setDiscountPrice('');
+      setCategory('');
+      setStockManaged(false);
+      setStockQuantity('');
+      setAdditionalInfo([{ key: '', value: '' }]);
+      setSelectedImage(null);
+      setPreview([]);
+      setImages([]);
+      setFeatured(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+
     if (id) {
 
       dispatch(getProductById(id));
@@ -64,20 +76,16 @@ function AddProduct() {
     }
   }, [dispatch, id]);
   const handleFileChange = (e) => {
-    const files = Array(e.target.files);
+    const files = Array.from(e.target.files);
     setSelectedImage(files);
-
-    if (files) {
-      setPreview(URL.createObjectURL(files));
-    } else {
-      setPreview(null);
-    }
+    const previews = files.map(file => URL.createObjectURL(file));
+    setPreview(previews);
   };
 
 
   useEffect(() => {
-    if (data?.product) {
-      setTitle(data.product.title ||'' );
+    if (id && data?.product) {
+      setTitle(data.product.title || '');
       setshortDescription(data.product.shortDescription || '');
       setLongDescription(data.product.LongDescription || '');
       setSellPrice(data.product.sellingPrice || '');
@@ -86,17 +94,63 @@ function AddProduct() {
       setStockManaged(data.product.stock > 0);
       setStockQuantity(data.product.stock || '');
       setAdditionalInfo(JSON.parse(data.product.additionalInfo) || [{ key: '', value: '' }]);
-      setImages(data.product.images || []);
+
+
+      if (Array.isArray(data.product.images)) {
+        setPreview(data.product.images);
+        setImages(data.product.images);
+      } else if (typeof data.product.images === 'string') {
+        setPreview(data.product.images.split(','));
+        setImages(data.product.images.split(','));
+      } else {
+        setPreview([]);
+        setImages([]);
+      }
+
     }
   }, [data]);
 
 
-useEffect(() => {
+
+  useEffect(() => {
     return () => {
-      if (!id) return;
-      if (preview) URL.revokeObjectURL(preview);
-    }
+      preview.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
   }, [preview]);
+
+  const editProduct = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('shortDescription', shortDescription);
+    formData.append('LongDescription', LongDescription);
+    formData.append('sellingPrice', sellPrice);
+    formData.append('discountPrice', discountPrice);
+    formData.append('category', category);
+    formData.append('stock', stockManaged ? Number(stockQuantity) : 0);
+    formData.append('featured', featured);
+
+    formData.append('additionalInfo', JSON.stringify(additionalInfo));
+
+    if (selectedImage && selectedImage.length > 0) {
+      selectedImage.forEach(file => formData.append('images', file));
+    } else {
+      // if you want to keep old images and not update images:
+      images.forEach(imgUrl => formData.append('images', imgUrl));
+    }
+
+    dispatch(updatproduct(id, formData));
+
+    // Optionally navigate away after update
+    // navigate('/products');
+  };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,29 +162,39 @@ useEffect(() => {
     formData.append('sellingPrice', sellPrice);
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
-    formData.append('stock', stockManaged ? stockQuantity : 0);
-    formData.append('images', featured);
+    formData.append('stock', stockManaged ? Number(stockQuantity) : 0);
 
-    images.forEach((img) => {
-      formData.append('image', img);
-    });
+    if (selectedImage && selectedImage.length > 0) {
+      selectedImage.forEach((file) => {
+        formData.append('images', file);
+      });
+    } else {
+      images.forEach((img) => {
+        formData.append('images', img);
+      });
+    }
+
 
     formData.append('additionalInfo', JSON.stringify(additionalInfo));
     console.log(JSON.stringify(additionalInfo))
-    dispatch(createProduct(formData));
-    // if(!error){
-
-    navigate('/products')
-    // }
+    try {
+      dispatch(createProduct(formData));
+if (error){
+  // toast.error(error)
+}
+      // navigate('/products')
+    } catch (error) {
+      
+      // toast.error(error)
+      // navigate('/products')
+    }
   };
 
   return (
     <div className="w-full lg:w-3/4 xl:w-4/5 lg:ml-auto gap-6 flex flex-col min-h-screen p-10">
       <div className='border-b pb-[12px] border-gray-300 flex justify-between items-center'>
         <h2 className='text-xl font-semibold capitalize flex items-center'>
-          {/* {id ? ("Edit Product") : (" */}
-          Add Products
-          {/* ")} */}
+          {id ? ("Edit Product") : ("Add Products ")}
         </h2>
 
         <button onClick={goBack} className='w-fit hover:opacity-[0.8] border border-[#ee403d]  text-white bg-[#ee403d] py-[8px] px-[15px]  rounded-[2px]'>
@@ -141,10 +205,10 @@ useEffect(() => {
       </div>
 
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" onSubmit={id ? editProduct : handleSubmit} >
         {loading && <p>Adding product...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {products && <p className="text-green-500">Product added successfully!</p>}
+        {/* {error && <p className="text-red-500">{error}</p>}
+        {products && <p className="text-green-500">Product added successfully!</p>} */}
         <div>
           <label className="block font-medium">Title</label>
           <input
@@ -200,6 +264,7 @@ useEffect(() => {
 
         <div>
           <label className="block font-medium">Category</label>
+
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -207,12 +272,15 @@ useEffect(() => {
             required
           >
             <option value="">Select category</option>
-            <option value="Men">Men</option>
+            {categories.map((category) => {
+              return (<option value={category.category} className='capitalize'>{category.category}</option>)
+            })}
+            {/* <option value="Men">Men</option>
             <option value="Women">Women</option>
             <option value="Bags">Bags</option>
             <option value="Shoes">Shoes</option>
             <option value="Jwellery">Jwellery</option>
-            <option value="Glasses">Glasses</option>
+            <option value="Glasses">Glasses</option> */}
           </select>
         </div>
 
@@ -279,26 +347,30 @@ useEffect(() => {
         </div>
 
         <div>
-          <label className="block font-medium">Product Images</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-          <div className="flex gap-2 mt-2">
-           {preview ? (
-           
-                             <img
-                               src={preview}
-                               alt="Category Preview"
-                               width={100}
-                               className="my-[16px] rounded"
-                             />
-           
-                           ) : (<FontAwesomeIcon icon={faImage} />)}
+
+
+          <div className="w-full border rounded border-gray-300 border-b-0  px-3 py-2 flex items-center justify-center h-[140px] p-4 gap-2.5">
+            {preview.length > 0 && preview.map((src, index) => (
+              <img
+                key={index}
+                src={src}
+                alt={`Preview ${index + 1}`}
+                width={100}
+                height={100}
+                className="my-[16px] rounded h-full"
+              />
+            ))}
+
           </div>
+          <label className=" font-medium border border-[#ddd] rounded rounded-t-0 text-center cursor-pointer text-black  py-2 px-5 bg-gray-50 hover: false mb-[5px] img-box w-full bg-gray-200 hover:bg-gray-600 hover:text-white block">Product Images
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              className="w-full border border-gray-300 p-2 rounded hidden"
+            />
+          </label>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -312,10 +384,13 @@ useEffect(() => {
 
         <button
           type="submit"
-          className="w-fit hover:opacity-[0.8] border border-[#ee403d] mt-[16px] text-white bg-[#ee403d] py-[8px] px-[15px] rounded-[2px] register-btn"
+          disabled={loading}
+          className={`w-fit border py-[8px] px-[15px] rounded-[2px] ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#ee403d] text-white hover:opacity-[0.8]'
+            }`}
         >
-          Add Product
+          {id ? 'Update Product' : 'Add Product'}
         </button>
+        <ToastContainer position="top-center" theme="colored" autoClose={3000} />
       </form>
     </div>
   );

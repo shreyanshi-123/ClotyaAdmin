@@ -31,9 +31,9 @@ const Sidebar = () => {
         </NavLink>
       </div>
 
-      <div className="flex items-center gap-4 bg-gray-800 p-4 rounded-md mx-4 my-6 shadow-inner">
+      <div className="flex items-center gap-4 bg-gray-800 p-4  mx-2 my-6 shadow-inner">
         <div className="flex flex-col flex-1">
-          <span className="font-semibold text-lg leading-tight truncate">ADMIN</span>
+          <span className="font-semibold text-lg leading-tight truncate capitalize">ADMIN</span>
           <span className="text-gray-400 text-sm truncate">admin@gmail.com</span>
         </div>
       </div>

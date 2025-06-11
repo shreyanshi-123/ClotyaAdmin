@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { ToastContainer, toast, Bounce } from "react-toastify";
 // Action Types
 import {
   CREATE_PRODUCT_REQUEST,
@@ -13,10 +13,15 @@ import {
   DELETE_PRODUCT_FAIL,
   PRODUCT_DETAILS_REQUEST,
   PRODUCT_DETAILS_SUCCESS,
-  PRODUCT_DETAILS_FAIL
+  PRODUCT_DETAILS_FAIL,
+  UPDATE_PRODUCT_REQUEST,
+  UPDATE_PRODUCT_SUCCESS,
+  UPDATE_PRODUCT_FAIL
+
 } from '../Constants/ProductsConstant'
+import { useNavigate } from 'react-router-dom';
 
-
+const navigate = useNavigate
 const baseUrl = window.location.hostname === 'localhost'
   ? 'http://localhost:5000'
   : process.env.REACT_APP_API_URL;
@@ -33,25 +38,25 @@ export const createProduct = (formData) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post('http://localhost:5000/api/products', formData, config);
+    const { data } = await axios.post(`${baseUrl}/api/products`, formData, config);
 
     dispatch({
       type: CREATE_PRODUCT_SUCCESS,
       payload: data,
     });
+    toast.success(data.message || 'Product created successfully!');
+   window.location.href=('/products')
   } catch (error) {
+    const message = error.message;
     dispatch({
       type: CREATE_PRODUCT_FAIL,
-      payload: error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message,
+      // errors: action.payload.message
+      payload: message,
+        
     });
-   
+   toast.error(message || 'Failed to create product');
   }
 };
-
-
-
 
 
 export const getProducts = () => async (dispatch) => {
@@ -64,12 +69,13 @@ export const getProducts = () => async (dispatch) => {
       type: GET_PRODUCTS_SUCCESS,
       payload: data,
     });
-    //  window.location.href=('/products')
+     
   } catch (error) {
     dispatch({
       type: GET_PRODUCTS_FAIL,
       payload: error.response?.data?.message || error.message,
     });
+    toast.error(error.message || 'Failed to get product');
   }
 };
 
@@ -83,6 +89,7 @@ export const deleteproducts = (id) => async (dispatch) => {
       type: DELETE_PRODUCT_SUCCESS,
       payload: data.success,
     });
+    toast.success(data.message || 'Product deleted successfully!');
   } catch (error) {
     dispatch({
       type: DELETE_PRODUCT_FAIL,
@@ -91,24 +98,7 @@ export const deleteproducts = (id) => async (dispatch) => {
   }
 };
 
-// export const getProductById = (id) => async (dispatch) => {
-//   try {
-//     dispatch({ type:  PRODUCT_DETAILS_REQUEST });
 
-//     const { data } = await axios.get(`${baseUrl}/api/get-product/${id}`);
-
-//     dispatch({
-//       type:  PRODUCT_DETAILS_SUCCESS,
-//       payload: data,
-//     });
-//     // alert(JSON.stringify(data))
-//   } catch (error) {
-//     dispatch({
-//       type:  PRODUCT_DETAILS_FAIL,
-//       payload: error.response?.data?.message || error.message,
-//     });
-//   }
-// };
 export const getProductById = (id) => async (dispatch) => {
   // alert(id)
   try {
@@ -124,3 +114,31 @@ export const getProductById = (id) => async (dispatch) => {
     dispatch({ type: 'PRODUCT_DETAILS_FAIL', payload: error.message });
   }
 };
+
+// Update product (Admin)
+export const updatproduct = (id, productData) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_PRODUCT_REQUEST });
+
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+
+    const { data } = await axios.post(`${baseUrl}/api/editProduct/${id}`, productData, config);
+
+    dispatch({ type: UPDATE_PRODUCT_SUCCESS, payload: data });
+    window.location.href= ('/products')
+     toast.success(data.message || 'Product updated successfully!');
+
+  } catch (error) {
+   
+    dispatch({
+      type: UPDATE_PRODUCT_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+    toast.error(error.response?.data?.error );
+  }
+};
+

@@ -6,7 +6,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 
 function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,22 +22,24 @@ function ProductList() {
 
 
   // Sort products by created date descending if date available
-  const sortedProducts = Array.isArray(products) 
-  ? products.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  : [];
- console.log(products.products)
+  const sortedProducts = Array.isArray(products.products)
+    ? products.products.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : [];
+  console.log(products.products)
 
-  // const indexOfLastProduct = currentPage * productsPerPage;
-  // const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  // const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  // const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
 
   useEffect(() => {
     if (error) {
       toast.error(error);
-    //   dispatch(clearErrors());
+      //   dispatch(clearErrors());
     }
+    setCurrentPage(1);
     dispatch(getProducts());
+    
   }, [dispatch, error]);
 
   const handleDeleteProduct = async (productId) => {
@@ -45,6 +47,10 @@ function ProductList() {
 
     await dispatch(deleteproducts(productId));
     dispatch(getProducts());
+     if (error) {
+      toast.error(error);
+      //   dispatch(clearErrors());
+    }
   };
 
   return (
@@ -92,10 +98,10 @@ function ProductList() {
                     </td>
                   </tr>
                 ) : (
-                 products.products.map((product, index) => {
+                  currentProducts.map((product, index) => {
                     // Compose image URL safely
-                    const imageUrl = product.images && product.images.length > 0 
-                      ? `${product.images[0] ? '' : '/'}${product.images[0]}`
+                    const imageUrl = product.images && product.images.length > 0
+                      ? `${baseUrl}${product.images[0] ? '' : '/'}${product.images[0]}`
                       : null;
 
                     return (
@@ -103,27 +109,29 @@ function ProductList() {
                         key={product._id}
                         className='text-black bg-white border-b border-gray-200 hover:shadow-lg hover:bg-[#ff00000a] transition-colors duration-200'
                       >
-                        <td className="px-6 py-2 capitalize font-semibold">{ index + 1}</td>
+                        <td className="px-6 py-2 capitalize font-semibold">{index + 1}</td>
                         <td className="px-6 py-2 flex gap-2">
-                          {imageUrl ? (
-                            <LazyLoadImage
-                              src={imageUrl}
-                              alt={product.title}
-                              height={50}
-                              width={50}
-                              effect=""
-                              className="object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded text-gray-500 text-xs">
-                              No Image
-                            </div>
-                           
-                          )}
+                          <div className="w-11 h-11 rounded-full overflow-hidden shadow-sm border border-gray-300 inline-block">
+                            {imageUrl ? (
 
-                          <div className="px-2 py-2 font-semibold flex items-center">
-                              {product.title}
-                            </div>
+                              <LazyLoadImage
+                                src={imageUrl}
+                                alt={product.title}
+                                height={50}
+                                width={50}
+                                effect=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded text-gray-500 text-xs">
+                                No Image
+                              </div>
+
+                            )}
+                          </div>
+                          <div className="px-2 py-2 font-semibold flex items-center capitalize">
+                            {product.title}
+                          </div>
                         </td>
                         {/* <td className="px-6 py-2 font-semibold"></td> */}
                         <td className="px-6 py-2">{product.category}</td>
@@ -163,7 +171,7 @@ function ProductList() {
           </div>
 
           {/* Pagination */}
-          {/* {totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex justify-center mt-6 gap-3">
               <button
                 className={`px-5 py-2 text-gray-900 transition disabled:opacity-50`}
@@ -191,7 +199,7 @@ function ProductList() {
                 Next <FontAwesomeIcon icon={faAngleRight} className='text-black ml-[5px]' />
               </button>
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>
