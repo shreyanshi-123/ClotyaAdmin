@@ -35,7 +35,7 @@ function UserList() {
   useEffect(() => {
     if (error) {
       // alert(error);
-      toast.error(error)
+      // toast.error(error)
       dispatch(clearErrors());
     }
     dispatch(getUsers());

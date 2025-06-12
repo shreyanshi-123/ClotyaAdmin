@@ -75,3 +75,12 @@ export const productDetailReducer = (state = initialState, action) => {
       return state;
   }
 }
+export const rootReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'RESET_STATE':
+      return initialState; // reset to initial state
+    // other cases
+    default:
+      return state;
+  }
+}

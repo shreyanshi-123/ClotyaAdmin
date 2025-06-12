@@ -30,7 +30,9 @@ function AddProduct() {
 
 
   const { categories = [] } = useSelector(state => state.categoryList);
-
+ const baseUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : process.env.REACT_APP_API_URL;
   useEffect(() => {
     dispatch(getcategory());
 
@@ -82,6 +84,38 @@ function AddProduct() {
     setPreview(previews);
   };
 
+//  useEffect(() => {
+//   if (id && data?.product) {
+//     setTitle(data.product.title || '');
+//     setshortDescription(data.product.shortDescription || '');
+//     setLongDescription(data.product.LongDescription || '');
+//     setSellPrice(data.product.sellingPrice || '');
+//     setDiscountPrice(data.product.discountPrice || '');
+//     setCategory(data.product.category || '');
+//     setStockManaged(data.product.stock > 0);
+//     setStockQuantity(data.product.stock || '');
+//     setAdditionalInfo(JSON.parse(data.product.additionalInfo) || [{ key: '', value: '' }]);
+
+//     if (Array.isArray(data.product.images)) {
+//       // prepend baseUrl if image path does not already include it
+//       const previewUrls = data.product.images.map(img => 
+//         img.startsWith('http') ? img : `${baseUrl}/${img.replace(/^\/+/, '')}`
+//       );
+//       setPreview(previewUrls);
+//       setImages(previewUrls);
+//     } else if (typeof data.product.images === 'string') {
+//       const imageArray = data.product.images.split(',');
+//       const previewUrls = imageArray.map(img => 
+//         img.startsWith('http') ? img : `${baseUrl}/${img.replace(/^\/+/, '')}`
+//       );
+//       setPreview(previewUrls);
+//       setImages(previewUrls);
+//     } else {
+//       setPreview([]);
+//       setImages([]);
+//     }
+//   }
+// }, [data, id, baseUrl]);
 
   useEffect(() => {
     if (id && data?.product) {
@@ -132,7 +166,7 @@ function AddProduct() {
     formData.append('sellingPrice', sellPrice);
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
-    formData.append('stock', stockManaged ? Number(stockQuantity) : 0);
+    formData.append('stock', stockManaged ? Number(stockQuantity) : 'in stock');
     formData.append('featured', featured);
 
     formData.append('additionalInfo', JSON.stringify(additionalInfo));
@@ -162,7 +196,7 @@ function AddProduct() {
     formData.append('sellingPrice', sellPrice);
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
-    formData.append('stock', stockManaged ? Number(stockQuantity) : 0);
+    formData.append('stock', stockManaged ? Number(stockQuantity) : 'in stock');
 
     if (selectedImage && selectedImage.length > 0) {
       selectedImage.forEach((file) => {
@@ -179,12 +213,12 @@ function AddProduct() {
     console.log(JSON.stringify(additionalInfo))
     try {
       dispatch(createProduct(formData));
-if (error){
-  // toast.error(error)
-}
+      if (error) {
+        // toast.error(error)
+      }
       // navigate('/products')
     } catch (error) {
-      
+
       // toast.error(error)
       // navigate('/products')
     }
@@ -224,6 +258,7 @@ if (error){
           <label className="block font-medium">Short Description</label>
           <input
             type="text"
+            required
             value={shortDescription}
             onChange={(e) => setshortDescription(e.target.value)}
             className="w-full border border-gray-300 p-2 rounded"
@@ -234,6 +269,7 @@ if (error){
           <label className="block font-medium">Description</label>
           <textarea
             value={LongDescription}
+            required
             onChange={(e) => setLongDescription(e.target.value)}
             className="w-full border border-gray-300 p-2 rounded"
             rows="4"
@@ -328,13 +364,13 @@ if (error){
                 }}
                 className="w-1/3 border p-2 rounded"
               />
-              <button
+              {info.value && <button
                 type="button"
                 onClick={() => handleRemoveInfo(index)}
                 className="text-red-500 hover:underline"
               >
                 Remove
-              </button>
+              </button>}
             </div>
           ))}
           <button
@@ -353,7 +389,7 @@ if (error){
             {preview.length > 0 && preview.map((src, index) => (
               <img
                 key={index}
-                src={src}
+                src={ src}
                 alt={`Preview ${index + 1}`}
                 width={100}
                 height={100}

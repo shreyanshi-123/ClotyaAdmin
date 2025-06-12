@@ -34,12 +34,12 @@ function ProductList() {
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      // toast.error(error);
       //   dispatch(clearErrors());
     }
     setCurrentPage(1);
     dispatch(getProducts());
-    
+
   }, [dispatch, error]);
 
   const handleDeleteProduct = async (productId) => {
@@ -47,7 +47,7 @@ function ProductList() {
 
     await dispatch(deleteproducts(productId));
     dispatch(getProducts());
-     if (error) {
+    if (error) {
       toast.error(error);
       //   dispatch(clearErrors());
     }
@@ -74,8 +74,8 @@ function ProductList() {
                 <tr>
                   <th scope="col" className="px-6 py-4">S. No.</th>
                   {/* <th scope="col" className="px-6 py-4">Image</th> */}
-                  <th scope="col" className="px-6 py-4">Product</th>
-                  <th scope="col" className="px-6 py-4">Category</th>
+                  <th scope="col" className="p-4 w-[350px]">Product</th>
+                  <th scope="col" className="px-6 py-4 ">Category</th>
                   <th scope="col" className="px-6 py-4">Price</th>
                   <th scope="col" className="px-6 py-4">Selling Price</th>
                   <th scope="col" className="px-6 py-4">Stock</th>
@@ -109,8 +109,8 @@ function ProductList() {
                         key={product._id}
                         className='text-black bg-white border-b border-gray-200 hover:shadow-lg hover:bg-[#ff00000a] transition-colors duration-200'
                       >
-                        <td className="px-6 py-2 capitalize font-semibold">{index + 1}</td>
-                        <td className="px-6 py-2 flex gap-2">
+                        <td className="px-6 py-2 capitalize font-semibold">{indexOfFirstProduct + index + 1}</td>
+                        <td className="px-4 py-2 flex gap-2 w-[350px]">
                           <div className="w-11 h-11 rounded-full overflow-hidden shadow-sm border border-gray-300 inline-block">
                             {imageUrl ? (
 
@@ -120,7 +120,7 @@ function ProductList() {
                                 height={50}
                                 width={50}
                                 effect=""
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover object-top"
                               />
                             ) : (
                               <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded text-gray-500 text-xs">
@@ -129,15 +129,23 @@ function ProductList() {
 
                             )}
                           </div>
-                          <div className="px-2 py-2 font-semibold flex items-center capitalize">
+                          <div className="px-2 py-2  flex items-center capitalize">
                             {product.title}
                           </div>
                         </td>
                         {/* <td className="px-6 py-2 font-semibold"></td> */}
                         <td className="px-6 py-2">{product.category}</td>
-                        <td className="px-6 py-2">${product.sellingPrice}</td>
-                        <td className="px-6 py-2">${product.discountPrice}</td>
-                        <td className="px-6 py-2">{product.stock}</td>
+                        <td className="px-6 py-2">{product.sellingPrice ? `$ ${product.sellingPrice}` : ''}</td>
+                        <td className="px-6 py-2">{product.discountPrice ? `$ ${product.discountPrice}` : '--'}</td>
+                        <td
+                          className={`px-6 py-2 font-semibold`}
+                        >
+                          <div className={`${product.stock <= 4 ? 'text-red-600 font-bold bg-[#ff000021] flex items-center justify-center w-[25px] h-[25px] rounded-[50%] ' : ''
+                            }`}>{product.stock}</div>
+                          
+                        </td>
+
+                        {/* <td className="px-6 py-2">{product.stock}</td> */}
                         {/* <td className="px-6 py-2">{product.featured ? 'Yes' : 'No'}</td> */}
                         {/* <td className="px-6 py-2 text-gray-500 font-mono">
                           {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : ''}

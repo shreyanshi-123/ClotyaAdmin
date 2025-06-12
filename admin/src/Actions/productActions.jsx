@@ -47,14 +47,16 @@ export const createProduct = (formData) => async (dispatch) => {
     toast.success(data.message || 'Product created successfully!');
    window.location.href=('/products')
   } catch (error) {
-    const message = error.message;
+    const message = error.response?.data?.error;
     dispatch({
       type: CREATE_PRODUCT_FAIL,
       // errors: action.payload.message
       payload: message,
         
     });
-   toast.error(message || 'Failed to create product');
+  toast.error(error.response?.data?.error );
+  dispatch({ type: 'RESET_STATE' });
+
   }
 };
 
@@ -131,6 +133,8 @@ export const updatproduct = (id, productData) => async (dispatch) => {
     dispatch({ type: UPDATE_PRODUCT_SUCCESS, payload: data });
     window.location.href= ('/products')
      toast.success(data.message || 'Product updated successfully!');
+     dispatch({ type: 'RESET_STATE' });
+
 
   } catch (error) {
    
