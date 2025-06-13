@@ -75,11 +75,11 @@ function ProductList() {
                   <th scope="col" className="px-6 py-4">S. No.</th>
                   {/* <th scope="col" className="px-6 py-4">Image</th> */}
                   <th scope="col" className="p-4 w-[350px]">Product</th>
-                  <th scope="col" className="px-6 py-4 ">Category</th>
-                  <th scope="col" className="px-6 py-4">Price</th>
-                  <th scope="col" className="px-6 py-4">Selling Price</th>
-                  <th scope="col" className="px-6 py-4">Stock</th>
-                  {/* <th scope="col" className="px-6 py-4">Featured</th> */}
+                  <th scope="col" className="px-6 py-4  w-[150px]">Category</th>
+                  <th scope="col" className="px-6 py-4  w-[150px]">Price</th>
+                  <th scope="col" className="px-6 py-4  w-[150px]">Selling Price</th>
+                  <th scope="col" className="px-6 py-4  w-[150px]">Stock</th>
+                  <th scope="col" className="px-6 py-4 ">Featured</th>
                   {/* <th scope="col" className="px-6 py-4">Added On</th> */}
                   <th scope="col" className="px-6 py-4">Action</th>
                 </tr>
@@ -134,34 +134,34 @@ function ProductList() {
                           </div>
                         </td>
                         {/* <td className="px-6 py-2 font-semibold"></td> */}
-                        <td className="px-6 py-2">{product.category}</td>
-                        <td className="px-6 py-2">{product.sellingPrice ? `$ ${product.sellingPrice}` : ''}</td>
-                        <td className="px-6 py-2">{product.discountPrice ? `$ ${product.discountPrice}` : '--'}</td>
-                       <td className="px-6 py-2 font-semibold">
-  <div
-    className={`
-      flex items-center justify-center w-[40px] h-[40px] rounded-full
-      ${product.stock === 0 
-        ? 'text-gray-600 bg-gray-200' 
-        : product.stock <= 4 
-          ? 'text-red-600 font-bold bg-[#ff000021]' 
-          : 'text-green-600 font-bold bg-[#00ff0033]'}
+                        <td className="px-6 py-2 w-[150px]">{product.category}</td>
+                        <td className="px-6 py-2  w-[150px]">{product.sellingPrice ? `$ ${product.sellingPrice}` : ''}</td>
+                        <td className="px-6 py-2  w-[150px]">{product.discountPrice ? `$ ${product.discountPrice}` : '--'}</td>
+                        <td className="px-6 py-2 font-semibold  w-[150px]">
+                          <div
+                            className={`
+       
+      ${product.stock === 0
+                                ? 'text-green-600 '
+                                : product.stock <= 4
+                                  ? 'text-red-600 font-bold h-[25px] w-[25px] bg-[#ff000021] rounded-full flex items-center justify-center'
+                                  : 'text-green-600 '}
     `}
-    title={
-      product.stock === 0
-        ? 'Out of Stock'
-        : product.stock <= 4
-        ? 'Low Stock'
-        : 'In Stock'
-    }
-  >
-    {product.stock}
-  </div>
-</td>
+                            title={
+                              product.stock === 'in stock'
+                                ? 'Out of Stock'
+                                : product.stock >= 4
+                                  ? 'Low Stock'
+                                  : 'Stock'
+                            }
+                          >
+                            {product.stock}
+                          </div>
+                        </td>
 
 
                         {/* <td className="px-6 py-2">{product.stock}</td> */}
-                        {/* <td className="px-6 py-2">{product.featured ? 'Yes' : 'No'}</td> */}
+                        <td className="px-6 py-2 ">{product.featuredProduct===true ? 'yes' :'no' }</td>
                         {/* <td className="px-6 py-2 text-gray-500 font-mono">
                           {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : ''}
                         </td> */}

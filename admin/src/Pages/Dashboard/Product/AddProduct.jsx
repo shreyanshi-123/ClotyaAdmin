@@ -22,7 +22,7 @@ function AddProduct() {
   const [stockQuantity, setStockQuantity] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState([{ key: '', value: '' }]);
   const [images, setImages] = useState([]);
-  const [featured, setFeatured] = useState(false);
+  const [featuredProduct, setfeaturedProduct] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error, products } = useSelector((state) => state.newProduct);
@@ -65,7 +65,7 @@ function AddProduct() {
       setSelectedImage(null);
       setPreview([]);
       setImages([]);
-      setFeatured(false);
+      setfeaturedProduct(false);
     }
   }, [id]);
 
@@ -84,38 +84,7 @@ function AddProduct() {
     setPreview(previews);
   };
 
-//  useEffect(() => {
-//   if (id && data?.product) {
-//     setTitle(data.product.title || '');
-//     setshortDescription(data.product.shortDescription || '');
-//     setLongDescription(data.product.LongDescription || '');
-//     setSellPrice(data.product.sellingPrice || '');
-//     setDiscountPrice(data.product.discountPrice || '');
-//     setCategory(data.product.category || '');
-//     setStockManaged(data.product.stock > 0);
-//     setStockQuantity(data.product.stock || '');
-//     setAdditionalInfo(JSON.parse(data.product.additionalInfo) || [{ key: '', value: '' }]);
 
-//     if (Array.isArray(data.product.images)) {
-//       // prepend baseUrl if image path does not already include it
-//       const previewUrls = data.product.images.map(img => 
-//         img.startsWith('http') ? img : `${baseUrl}/${img.replace(/^\/+/, '')}`
-//       );
-//       setPreview(previewUrls);
-//       setImages(previewUrls);
-//     } else if (typeof data.product.images === 'string') {
-//       const imageArray = data.product.images.split(',');
-//       const previewUrls = imageArray.map(img => 
-//         img.startsWith('http') ? img : `${baseUrl}/${img.replace(/^\/+/, '')}`
-//       );
-//       setPreview(previewUrls);
-//       setImages(previewUrls);
-//     } else {
-//       setPreview([]);
-//       setImages([]);
-//     }
-//   }
-// }, [data, id, baseUrl]);
 
   useEffect(() => {
     if (id && data?.product) {
@@ -167,7 +136,7 @@ function AddProduct() {
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
     formData.append('stock', stockManaged ? Number(stockQuantity) : 'in stock');
-    formData.append('featured', featured);
+    formData.append('featuredProduct', featuredProduct);
 
     formData.append('additionalInfo', JSON.stringify(additionalInfo));
 
@@ -177,6 +146,7 @@ function AddProduct() {
       // if you want to keep old images and not update images:
       images.forEach(imgUrl => formData.append('images', imgUrl));
     }
+    alert(JSON.stringify(formData))
 
     dispatch(updatproduct(id, formData));
 
@@ -197,7 +167,7 @@ function AddProduct() {
     formData.append('discountPrice', discountPrice);
     formData.append('category', category);
     formData.append('stock', stockManaged ? Number(stockQuantity) : 'in stock');
-
+formData.append('featuredProduct', featuredProduct);
     if (selectedImage && selectedImage.length > 0) {
       selectedImage.forEach((file) => {
         formData.append('images', file);
@@ -412,8 +382,8 @@ function AddProduct() {
         <div className="flex items-center space-x-3">
           <input
             type="checkbox"
-            checked={featured}
-            onChange={() => setFeatured(!featured)}
+            checked={featuredProduct}
+            onChange={() => setfeaturedProduct(!featuredProduct)}
           />
           <span className="font-medium">Featured Product</span>
         </div>
